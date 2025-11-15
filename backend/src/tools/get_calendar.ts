@@ -3,8 +3,8 @@ import * as z from "zod";
 import { google, calendar_v3 } from "googleapis";
 import { GOOGLE_API_KEY } from "../config/envConfig";
 import { DateTime } from "luxon";
+import db from "../db/knex";
 
-const accessToken = ""
 process.env.GOOGLE_API_KEY = GOOGLE_API_KEY;
 
 const TOOL_DESCRIPTION = `
@@ -19,8 +19,10 @@ export const getEvents = tool(
 		{
 			startTime: string,
 			endTime: string,
+			userId: string,
 		}
 	) => {
+		const accessToken = await db("google_accounts").where({ user_id: input.userId }).first();
 
 		const auth = new google.auth.OAuth2();
 		auth.setCredentials({ access_token: accessToken });
@@ -46,6 +48,7 @@ export const getEvents = tool(
 		schema: z.object({
 			startTime: z.string().describe("The start time of the event in ISO 8601 datetime format"),
 			endTime: z.string().describe("The end time of the event in ISO 8601 datetime format"),
+			userId: z.string().describe("The ID of the user whose calendar to access"),
 		})
 	}
 );

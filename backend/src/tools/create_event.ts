@@ -2,8 +2,8 @@ import { tool } from "langchain";
 import * as z from "zod";
 import { google } from "googleapis";
 import { GOOGLE_API_KEY } from "../config/envConfig";
+import db from "../db/knex";
 
-const accessToken = ""
 process.env.GOOGLE_API_KEY = GOOGLE_API_KEY;
 
 const TOOL_DESCRIPTION = `
@@ -21,9 +21,11 @@ export const createEvent = tool(
 			location: string, 
 			startTime: string,
 			endTime: string,
-			attendees: string[]
+			attendees: string[],
+			userId: string,
 		}
 	) => {
+		const accessToken = await db("google_accounts").where({ user_id: input.userId }).first();
 
 		const auth = new google.auth.OAuth2();
 		auth.setCredentials({ access_token: accessToken });
@@ -63,6 +65,7 @@ export const createEvent = tool(
 			startTime: z.string().describe("The start time of the event in ISO 8601 datetime format"),
 			endTime: z.string().describe("The end time of the event in ISO 8601 datetime format"),
 			attendees: z.array(z.string()).describe("A list of email addresses of the attendees"),
+			userId: z.string().describe("The ID of the user whose calendar to access"),
 		})
 	}
 );
