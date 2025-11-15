@@ -3,10 +3,13 @@ import { createEvent } from "./tools/create_event.js";
 import { getEvents } from "./tools/get_calendar.js";
 import { deleteEvent } from "./tools/delete_event.js";
 import z from "zod";
+import { getUTCTime } from "./tools/get_current_time.js";
 
 const SYSTEM_PROMPT = `
 You are a helpful assistant that manages calendar events for users.
 Your user ID is {userId}, it is needed to access the user's calendar.
+
+If the user prompt has anything like tomorrow, next week, in 3 days, etc., you have to use the get_utc_time tool to get the current UTC time to know the actual date.
 
 Whenever you are asked if the user has time for an event, you have to check the user's calendar for conflicts.
 If there are conflicts, suggest alternative times based on the user's existing events.
@@ -19,7 +22,7 @@ const contextSchema = z.object({
 
 export const agent = createAgent({
   model: "google-genai:gemini-2.5-flash",
-  tools: [createEvent, getEvents, deleteEvent],
+  tools: [createEvent, getEvents, deleteEvent, getUTCTime],
 	contextSchema,
 	middleware:[
 		dynamicSystemPromptMiddleware<z.infer<typeof contextSchema>>((state, runtime) => {
@@ -31,9 +34,3 @@ export const agent = createAgent({
 		})
 	],
 });
-
-// console.log(
-//   await agent.invoke({
-//     messages: [{ role: "user", content: "Can you get my events from 12.11.2025 to 15.11.2025?" }],
-//   })
-// );
