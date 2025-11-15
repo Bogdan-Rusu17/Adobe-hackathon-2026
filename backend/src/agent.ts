@@ -1,6 +1,7 @@
 import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
 import { createEvent } from "./tools/create_event.js";
 import { getEvents } from "./tools/get_calendar.js";
+import { deleteEvent } from "./tools/delete_event.js";
 import z from "zod";
 
 const SYSTEM_PROMPT = `
@@ -18,7 +19,7 @@ const contextSchema = z.object({
 
 export const agent = createAgent({
   model: "google-genai:gemini-2.5-flash",
-  tools: [createEvent, getEvents],
+  tools: [createEvent, getEvents, deleteEvent],
 	contextSchema,
 	middleware:[
 		dynamicSystemPromptMiddleware<z.infer<typeof contextSchema>>((state, runtime) => {
