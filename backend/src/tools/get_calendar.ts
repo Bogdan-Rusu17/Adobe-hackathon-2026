@@ -1,11 +1,8 @@
 import { tool } from "langchain";
 import * as z from "zod";
 import { google, calendar_v3 } from "googleapis";
-import { GOOGLE_API_KEY } from "../config/envConfig";
 import { DateTime } from "luxon";
 import db from "../db/knex";
-
-process.env.GOOGLE_API_KEY = GOOGLE_API_KEY;
 
 const TOOL_DESCRIPTION = `
 Get calendar events within a specified time range.

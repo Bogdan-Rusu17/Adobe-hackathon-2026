@@ -1,10 +1,7 @@
 import { tool } from "langchain";
 import * as z from "zod";
 import { google } from "googleapis";
-import { GOOGLE_API_KEY } from "../config/envConfig";
 import db from "../db/knex";
-
-process.env.GOOGLE_API_KEY = GOOGLE_API_KEY;
 
 const TOOL_DESCRIPTION = `
 Create a calendar event
