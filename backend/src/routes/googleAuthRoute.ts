@@ -4,14 +4,28 @@ import { getGoogleAuthURL, handleGoogleCallback } from "../services/googleServic
 const router = Router();
 
 router.get("/google", (req, res) => {
-    res.redirect(getGoogleAuthURL());
+    const redirectUri = req.query.redirect_uri as string;
+    const authUrl = getGoogleAuthURL(redirectUri);
+    console.log(redirectUri);
+
+    console.log(authUrl);
+
+    res.redirect(authUrl);
 });
 
 router.get("/google/callback", async (req, res) => {
     const code = req.query.code as string;
+
+    // The `state` contains your expo deep link.
+    const redirectUri = req.query.state as string;
+    console.log(redirectUri);
+
     const jwt = await handleGoogleCallback(code);
 
-    res.json({ success: true, jwt });
+    // Redirect back to the app
+    const finalUrl = `${redirectUri}?token=${jwt}`;
+
+    return res.redirect(finalUrl);
 });
 
 export default router;

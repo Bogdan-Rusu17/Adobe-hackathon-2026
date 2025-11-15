@@ -8,7 +8,7 @@ export const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_REDIRECT_URI!
 );
 
-export function getGoogleAuthURL() {
+export function getGoogleAuthURL(redirectUri: string) {
     const scopes = [
         "https://www.googleapis.com/auth/calendar.readonly",
         "openid",
@@ -20,8 +20,11 @@ export function getGoogleAuthURL() {
         access_type: "offline",
         prompt: "consent",
         scope: scopes,
+        state: redirectUri,
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI
     });
 }
+
 
 export async function handleGoogleCallback(code: string) {
     const { tokens } = await oauth2Client.getToken(code);
