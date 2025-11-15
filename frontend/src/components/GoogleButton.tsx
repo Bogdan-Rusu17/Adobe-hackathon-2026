@@ -7,24 +7,29 @@ import {
     Platform,
     GestureResponderEvent,
     ViewStyle,
+    Image,
 } from 'react-native';
 
 type Props = {
     onPress?: (event: GestureResponderEvent) => void;
     label?: string;
-    style?: ViewStyle;   // <-- ADD THIS
+    style?: ViewStyle;
 };
 
-const GoogleButton: React.FC<Props> = ({ onPress, label = 'Log in with Google', style }) => {
+const GoogleButton: React.FC<Props> = ({ onPress, label = 'Sign in with Google', style }) => {
     return (
         <TouchableOpacity
-            style={[styles.button, style]}   // <-- MERGE STYLES
-            activeOpacity={0.8}
+            style={[styles.button, style]}
+            activeOpacity={0.85}
             onPress={onPress}
         >
-            <View style={styles.logoPlaceholder}>
-                <Text style={styles.g}>G</Text>
-            </View>
+            <Image
+                source={{
+                    uri: 'https://developers.google.com/identity/images/g-logo.png',
+                }}
+                style={styles.googleIcon}
+            />
+
             <Text style={styles.label}>{label}</Text>
         </TouchableOpacity>
     );
@@ -36,46 +41,42 @@ const styles = StyleSheet.create({
     button: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+
         backgroundColor: '#FFFFFF',
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        borderRadius: 30,
-        width: '86%',
+        paddingVertical: 20,
+        paddingHorizontal: 16,
+
+        borderRadius: 15,
+        borderWidth: 1,
+        borderColor: '#dadce0',
+
+        width: '100%',
         maxWidth: 360,
         alignSelf: 'center',
 
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
-                shadowOffset: { width: 0, height: 3 },
-                shadowOpacity: 0.12,
-                shadowRadius: 6,
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.08,
+                shadowRadius: 2,
             },
             android: {
-                elevation: 4,
+                elevation: 2,
             },
         }),
     },
 
-    logoPlaceholder: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: '#EDEDED',
-        alignItems: 'center',
-        justifyContent: 'center',
+    googleIcon: {
+        width: 20,
+        height: 20,
         marginRight: 12,
     },
 
-    g: {
-        color: '#4285F4',
-        fontWeight: '700',
-    },
-
     label: {
-        color: '#333',
+        color: '#3c4043',
         fontSize: 16,
-        fontWeight: '600',
-        textAlign: 'center',
+        fontWeight: '500',
     },
 });

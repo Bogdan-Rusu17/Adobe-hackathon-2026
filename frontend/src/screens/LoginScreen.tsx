@@ -1,35 +1,59 @@
-import React from "react";
-import { SafeAreaView, View, Text, StyleSheet, Dimensions } from "react-native";
-import Timy from "../assets/Timy";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Dimensions, Image } from "react-native";
+import Timy from "../assets/Timy.png";
 import GoogleButton from "../components/GoogleButton";
 
-const { width: W, height: H } = Dimensions.get("window");
-
-// much larger so the arc looks soft & wide, just like in the screenshot
-const CIRCLE_SIZE = W * 4.2;
-
 export default function LoginScreen() {
+    const [dimensions, setDimensions] = useState(Dimensions.get("window"));
+
+    useEffect(() => {
+        const subscription = Dimensions.addEventListener("change", ({ window }) => {
+            setDimensions(window);
+        });
+
+        return () => subscription?.remove();
+    }, []);
+
+    const { width: W, height: H } = dimensions;
+
     return (
-        <SafeAreaView style={styles.container}>
-
-            {/* cream top */}
+        <View style={styles.container}>
+            {/* Partea de sus - Background bej cu bufnița */}
             <View style={styles.topSection}>
-                <Timy width={180} height={180} />
+                <Image
+                    source={Timy}
+                    style={{
+                        width: W * 0.43,
+                        height: H * 0.32,
+                        resizeMode: "contain",
+                        marginBottom: -(H * 0.10), // Suprapune bufnița peste cerc
+                        zIndex: 10, // Z-index mare ca să fie deasupra cercului
+                    }}
+                />
             </View>
 
-            {/* blue bottom */}
             <View style={styles.bottomSection}>
-                <View style={styles.circle} />
+                <View style={styles.contentContainer}>
+                    <Text
+                        style={{
+                            fontSize: W * 0.097,
+                            lineHeight: W * 0.115,
+                            fontWeight: "700",
+                            color: "#FFFFFF",
+                            textAlign: "center",
+                            fontFamily: "HankenGrotesk-Bold",
+                        }}
+                    >
+                        Timy here!{"\n"}
+                        Your schedule buddy.
+                    </Text>
 
-                <View style={styles.textContainer}>
-                    <Text style={styles.title}>Timy here!</Text>
-                    <Text style={styles.subtitle}>Your schedule{"\n"}buddy.</Text>
+                    <View style={{ marginTop: H * 0.1, width: "100%", maxWidth: 400}}>
+                        <GoogleButton />
+                    </View>
                 </View>
-
-                <GoogleButton style={styles.button} />
             </View>
-
-        </SafeAreaView>
+        </View>
     );
 }
 
@@ -40,54 +64,28 @@ const styles = StyleSheet.create({
     },
 
     topSection: {
-        height: H * 0.38,      // matches the “big cream top area”
-        alignItems: "center",
-        justifyContent: "flex-end",
+        flex: 1,
         backgroundColor: "#FFF8EA",
-        paddingBottom: 10,
+        justifyContent: "flex-end",
+        alignItems: "center",
+        paddingBottom: 0,
+        zIndex: 10, // Z-index mare pentru top section cu bufnița
     },
 
     bottomSection: {
-        flex: 1,
+        flex: 1.5,
+        backgroundColor: "#7AA6D9",
+        borderTopLeftRadius: 1000,
+        borderTopRightRadius: 1000,
+        alignItems: "center",
+        justifyContent: "center",
+        paddingBottom: "15%",
+        paddingHorizontal: "10%",
+        zIndex: 1,
+    },
+
+    contentContainer: {
         width: "100%",
         alignItems: "center",
-        justifyContent: "flex-start",
-        backgroundColor: "#7AA6D9",  // closer to screenshot blue
-        overflow: "hidden",
-    },
-
-    circle: {
-        position: "absolute",
-        top: -CIRCLE_SIZE * 0.62,  // lower the arc to match screenshot
-        left: (W - CIRCLE_SIZE) / 2,
-        width: CIRCLE_SIZE,
-        height: CIRCLE_SIZE,
-        backgroundColor: "#7AA6D9",
-        borderRadius: CIRCLE_SIZE / 2,
-    },
-
-    textContainer: {
-        marginTop: H * 0.11, // positions text exactly like screenshot
-        alignItems: "center",
-    },
-
-    title: {
-        fontSize: 32,
-        fontWeight: "700",
-        color: "#FFFFFF",
-        textAlign: "center",
-    },
-
-    subtitle: {
-        fontSize: 28,
-        fontWeight: "500",
-        color: "#FFFFFF",
-        marginTop: 5,
-        textAlign: "center",
-        lineHeight: 35,
-    },
-
-    button: {
-        marginTop: H * 0.15,
     },
 });
