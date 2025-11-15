@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import {View, Text, StyleSheet, Button} from "react-native";
+import {connectGoogle} from "./src/clients/googleAuthClient";
 
 export default function App() {
   const [message, setMessage] = useState("Loading...");
@@ -15,6 +16,7 @@ export default function App() {
       <View style={styles.container}>
         <Text style={styles.title}>Backend response:</Text>
         <Text style={styles.response}>{message}</Text>
+        <Button title="Connect Google Calendar" onPress={connectGoogle} />
       </View>
   );
 }
