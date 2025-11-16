@@ -1,8 +1,8 @@
 // Home.tsx
-import React, {useEffect, useMemo, useState } from "react";
+import React, {useEffect, useMemo, useState, useRef } from "react";
 import {
   View, Text, StyleSheet, Dimensions, Image, ScrollView,
-  TouchableOpacity, StatusBar
+  TouchableOpacity, StatusBar, PanResponder,
 } from "react-native";
 import Timy from "../src/assets/timyChat.png";
 import MenuIcon from "../src/assets/burger.png";
@@ -496,7 +496,433 @@ function Row({children}:{children:React.ReactNode}){
   );
 }
 
-/* ===================== styles ===================== */
+function EventDetailsSheet({
+                             event,
+                             onClose,
+                           }: {
+  event: CalendarEvent;
+  onClose: () => void;
+}) {
+  const H = Dimensions.get("window").height;
+  const targetTop = H * 0.15;
+
+  const sheetY = useRef(new Animated.Value(H)).current;
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  React.useEffect(() => {
+    Animated.spring(sheetY, {
+      toValue: targetTop,
+      damping: 20,
+      stiffness: 90,
+      useNativeDriver: false,
+    }).start();
+  }, []);
+
+  // FORMAT TIME
+  const fmt = (ts: string) =>
+      new Date(ts).toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+  const getDuration = () => {
+    const s = new Date(event.startTime),
+        e = new Date(event.endTime);
+    const diff = e.getTime() - s.getTime();
+    const h = Math.floor(diff / (1000 * 60 * 60));
+    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
+  };
+
+  // DRAG DOWN
+  const panResponder = useMemo(
+      () =>
+          PanResponder.create({
+            onMoveShouldSetPanResponder: (_, g) => g.dy > 5,
+            onPanResponderMove: (_, g) => {
+              if (g.dy > 0) sheetY.setValue(targetTop + g.dy);
+            },
+            onPanResponderRelease: (_, g) => {
+              if (g.dy > 100) {
+                Animated.timing(sheetY, {
+                  toValue: H,
+                  duration: 200,
+                  useNativeDriver: false,
+                }).start(onClose);
+              } else {
+                Animated.spring(sheetY, {
+                  toValue: targetTop,
+                  damping: 15,
+                  stiffness: 100,
+                  useNativeDriver: false,
+                }).start();
+              }
+            },
+          }),
+      [targetTop]
+  );
+
+  const avatarColors = ["#DADADA", "#B3B3B3", "#7A7A7A", "#9CA3AF", "#6B7280"];
+
+  return (
+      <>
+        {/* BACKDROP */}
+        <TouchableOpacity
+            activeOpacity={1}
+            onPress={onClose}
+            style={sheetStyles.backdropContainer}
+        >
+          <View style={sheetStyles.blurOverlay} />
+        </TouchableOpacity>
+
+        {/* SLIDING SHEET */}
+        <Animated.View
+            style={[sheetStyles.sheet, { top: sheetY }]}
+        >
+          <View {...panResponder.panHandlers} style={sheetStyles.handleArea}>
+            <View style={sheetStyles.handle} />
+          </View>
+
+          <ScrollView
+              ref={scrollViewRef}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={sheetStyles.scrollContent}
+              bounces={true}
+          >
+            {/* HEADER WITH COLOR BAR */}
+            <View style={[sheetStyles.colorBar, { backgroundColor: event.color || C.cardGrey }]} />
+
+            <Text style={sheetStyles.title}>{event.title}</Text>
+
+            {/* TIME CARD */}
+            <View style={sheetStyles.infoCard}>
+              <View style={sheetStyles.iconCircleSmall}>
+                <Text style={sheetStyles.iconText}>🕐</Text>
+              </View>
+              <View style={sheetStyles.infoContent}>
+                <Text style={sheetStyles.infoLabel}>Time</Text>
+                <Text style={sheetStyles.infoValue}>
+                  {fmt(event.startTime)} - {fmt(event.endTime)}
+                </Text>
+                <Text style={sheetStyles.infoDuration}>{getDuration()} duration</Text>
+              </View>
+            </View>
+
+            {/* LOCATION CARD */}
+            {event.location && (
+                <View style={sheetStyles.infoCard}>
+                  <View style={sheetStyles.iconCircleSmall}>
+                    <Text style={sheetStyles.iconText}>📍</Text>
+                  </View>
+                  <View style={sheetStyles.infoContent}>
+                    <Text style={sheetStyles.infoLabel}>Location</Text>
+                    <Text style={sheetStyles.infoValue}>{event.location}</Text>
+                  </View>
+                </View>
+            )}
+
+            {/* ATTENDEES CARD */}
+            <View style={sheetStyles.infoCard}>
+              <View style={sheetStyles.iconCircleSmall}>
+                <Text style={sheetStyles.iconText}>👥</Text>
+              </View>
+              <View style={sheetStyles.infoContent}>
+                <Text style={sheetStyles.infoLabel}>
+                  Attendees ({event.attendees.length})
+                </Text>
+
+                {/* Avatar Row */}
+                <View style={sheetStyles.avatarRow}>
+                  {event.attendees.slice(0, 5).map((a, i) => (
+                      <View
+                          key={a.email}
+                          style={[
+                            sheetStyles.avatarLarge,
+                            {
+                              marginLeft: i > 0 ? -12 : 0,
+                              backgroundColor: avatarColors[i % avatarColors.length],
+                              zIndex: 5 - i,
+                            },
+                          ]}
+                      >
+                        {a.avatarUrl ? (
+                            <Image
+                                source={{ uri: a.avatarUrl }}
+                                style={sheetStyles.avatarImage}
+                            />
+                        ) : (
+                            <Text style={sheetStyles.avatarInitials}>
+                              {a.name
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")
+                                  .toUpperCase()
+                                  .slice(0, 2)}
+                            </Text>
+                        )}
+                      </View>
+                  ))}
+                  {event.attendees.length > 5 && (
+                      <View
+                          style={[
+                            sheetStyles.avatarLarge,
+                            { marginLeft: -12, backgroundColor: "#64748B" },
+                          ]}
+                      >
+                        <Text style={sheetStyles.avatarInitials}>
+                          +{event.attendees.length - 5}
+                        </Text>
+                      </View>
+                  )}
+                </View>
+
+                {/* Attendee List */}
+                <View style={sheetStyles.attendeeList}>
+                  {event.attendees.map((a, idx) => (
+                      <View key={a.email} style={sheetStyles.attendeeItem}>
+                        <View
+                            style={[
+                              sheetStyles.attendeeDot,
+                              { backgroundColor: avatarColors[idx % avatarColors.length] },
+                            ]}
+                        />
+                        <View>
+                          <Text style={sheetStyles.attendeeName}>{a.name}</Text>
+                          <Text style={sheetStyles.attendeeEmail}>{a.email}</Text>
+                        </View>
+                      </View>
+                  ))}
+                </View>
+              </View>
+            </View>
+
+            {/* ACTION BUTTONS */}
+            <View style={sheetStyles.actionRow}>
+              <TouchableOpacity style={sheetStyles.actionButton} activeOpacity={0.7}>
+                <Text style={sheetStyles.actionButtonText}>Edit Event</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                  style={[sheetStyles.actionButton, sheetStyles.actionButtonSecondary]}
+                  activeOpacity={0.7}
+              >
+                <Text style={sheetStyles.actionButtonTextSecondary}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </Animated.View>
+      </>
+  );
+}
+
+const sheetStyles = StyleSheet.create({
+  backdropContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+
+  blurOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(255,255,255,0.05)",
+  },
+
+  sheet: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: "85%",
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: -4 },
+    elevation: 10,
+  },
+
+  handleArea: {
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+
+  handle: {
+    width: 50,
+    height: 5,
+    backgroundColor: "#D1D5DB",
+    borderRadius: 3,
+  },
+
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+  },
+
+  colorBar: {
+    height: 6,
+    borderRadius: 3,
+    marginBottom: 20,
+    width: "100%",
+  },
+
+  title: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: "#1E293B",
+    marginBottom: 24,
+    letterSpacing: -0.5,
+  },
+
+  infoCard: {
+    flexDirection: "row",
+    backgroundColor: "#F8FAFC",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+  },
+
+  iconCircleSmall: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 14,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+  },
+
+  iconText: {
+    fontSize: 22,
+  },
+
+  infoContent: {
+    flex: 1,
+    justifyContent: "center",
+  },
+
+  infoLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#64748B",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 6,
+  },
+
+  infoValue: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1E293B",
+    marginBottom: 2,
+  },
+
+  infoDuration: {
+    fontSize: 14,
+    color: "#94A3B8",
+    marginTop: 2,
+  },
+
+  avatarRow: {
+    flexDirection: "row",
+    marginTop: 12,
+    marginBottom: 16,
+    alignItems: "center",
+  },
+
+  avatarLarge: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    borderWidth: 3,
+    borderColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  avatarImage: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
+
+  avatarInitials: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+
+  attendeeList: {
+    marginTop: 8,
+  },
+
+  attendeeItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F5F9",
+  },
+
+  attendeeDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 14,
+  },
+
+  attendeeName: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#1E293B",
+    marginBottom: 2,
+  },
+
+  attendeeEmail: {
+    fontSize: 13,
+    color: "#94A3B8",
+  },
+
+  actionRow: {
+    flexDirection: "row",
+    marginTop: 8,
+    gap: 12,
+  },
+
+  actionButton: {
+    flex: 1,
+    backgroundColor: C.blue,
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  actionButtonSecondary: {
+    backgroundColor: "#F1F5F9",
+  },
+
+  actionButtonText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#FFFFFF",
+  },
+
+  actionButtonTextSecondary: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#64748B",
+  },
+});
+// /* ===================== styles ===================== */
 const styles = StyleSheet.create({
   container:{ flex:1, backgroundColor:C.bg },
   header:{
