@@ -9,12 +9,12 @@ import {
   TouchableOpacity,
   StatusBar,
 } from "react-native";
-import Timy from "../src/assets/Timy.png"; // păstrează sau schimbă calea
+import Timy from "../src/assets/Timy.png";
 
 import MenuIcon from "../src/assets/burger.png";
 import BellIcon from "../src/assets/bell.png";
 import UserIcon from "../src/assets/profile.png";
-
+import { useRouter } from "expo-router";
 
 const C = {
   bg: "#FFF8EA",
@@ -29,144 +29,144 @@ const C = {
 };
 
 export default function Home() {
+  const router = useRouter();
   const { width: W, height: H } = Dimensions.get("window");
-  const radius = useMemo(() => Math.max(W, H) * 0.72, [W, H]); // cerc mare colț dreapta-jos
+  const radius = useMemo(() => Math.max(W, H) * 0.72, [W, H]);
 
-  const [selected, setSelected] = useState(1); // 0..6
+  const [selected, setSelected] = useState(1);
 
   const days = ["m", "t", "w", "t", "f", "s", "s"];
   const dates = ["01", "02", "03", "04", "05", "06", "07"];
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" />
 
-      {/* ======= HEADER ======= */}
-      <View style={styles.header}>
-  <TouchableOpacity style={styles.iconCircle}>
-    <Image source={MenuIcon} style={styles.iconImageWhite} />
-  </TouchableOpacity>
+        {/* ======= HEADER ======= */}
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.iconCircle}>
+            <Image source={MenuIcon} style={styles.iconImageWhite} />
+          </TouchableOpacity>
 
-  <View style={styles.headerRight}>
-    <TouchableOpacity style={styles.iconCircle}>
-      <Image source={BellIcon} style={styles.iconImageWhite} />
-    </TouchableOpacity>
-    <TouchableOpacity style={[styles.iconCircle, { marginLeft: 12 }]}>
-      <Image source={UserIcon} style={styles.iconImageWhite} />
-    </TouchableOpacity>
-  </View>
-</View>
-
-
-      <ScrollView
-        contentContainerStyle={{ paddingBottom: H * 0.22 }}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* ======= TITLE & DATE ======= */}
-        <View style={{ paddingHorizontal: 16, paddingTop: 8 }}>
-          <Text style={styles.title}>Let’s See Your Day!</Text>
-          <Text style={styles.subtitle}>Monday, March 25th 2025</Text>
-        </View>
-
-        {/* ======= DAY SELECTOR ======= */}
-        <View style={styles.pillWrap}>
-          <View style={styles.pillInner}>
-            {days.map((d, i) => {
-              const isSel = i === selected;
-              return (
-                <TouchableOpacity
-                  key={i}
-                  style={styles.dayCol}
-                  onPress={() => setSelected(i)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={[styles.dayLabel, isSel && { color: C.navy }]}>{d}</Text>
-                  <View
-                    style={[
-                      styles.dateDotWrap,
-                      isSel && { backgroundColor: C.blue },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.dateText,
-                        isSel && { color: C.white, fontWeight: "700" },
-                      ]}
-                    >
-                      {dates[i]}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
+          <View style={styles.headerRight}>
+            <TouchableOpacity style={styles.iconCircle}>
+              <Image source={BellIcon} style={styles.iconImageWhite} />
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.iconCircle, { marginLeft: 12 }]}>
+              <Image source={UserIcon} style={styles.iconImageWhite} />
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* ======= CARDS ======= */}
-        <EventCard
-          color={C.cardGrey}
-          title="Title"
-          time="12:00pm to 1:20pm - 1.4 hours"
-          location="Bucharest"
-          person="Mihaela"
+        <ScrollView
+            contentContainerStyle={{ paddingBottom: H * 0.22 }}
+            showsVerticalScrollIndicator={false}
+        >
+          {/* ======= TITLE & DATE ======= */}
+          <View style={{ paddingHorizontal: 16, paddingTop: 8 }}>
+            <Text style={styles.title}>Let’s See Your Day!</Text>
+            <Text style={styles.subtitle}>Monday, March 25th 2025</Text>
+          </View>
+
+          {/* ======= DAY SELECTOR ======= */}
+          <View style={styles.pillWrap}>
+            <View style={styles.pillInner}>
+              {days.map((d, i) => {
+                const isSel = i === selected;
+                return (
+                    <TouchableOpacity
+                        key={i}
+                        style={styles.dayCol}
+                        onPress={() => setSelected(i)}
+                        activeOpacity={0.7}
+                    >
+                      <Text style={[styles.dayLabel, isSel && { color: C.navy }]}>
+                        {d}
+                      </Text>
+                      <View
+                          style={[
+                            styles.dateDotWrap,
+                            isSel && { backgroundColor: C.blue },
+                          ]}
+                      >
+                        <Text
+                            style={[
+                              styles.dateText,
+                              isSel && { color: C.white, fontWeight: "700" },
+                            ]}
+                        >
+                          {dates[i]}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
+          {/* ======= CARDS ======= */}
+          <EventCard
+              color={C.cardGrey}
+              title="Title"
+              time="12:00pm to 1:20pm - 1.4 hours"
+              location="Bucharest"
+              person="Mihaela"
+          />
+
+          <EventCard
+              color={C.cardBlue}
+              title="Title"
+              time="12:00pm to 1:20pm - 1.4 hours"
+              location="Bucharest"
+              person="Mihaela"
+          />
+
+          <EventCard color={C.cardGrey} title="" time="" location="" person="" empty />
+        </ScrollView>
+
+        {/* ======= CERCUL colț dreapta-jos ======= */}
+        <View
+            pointerEvents="none"
+            style={[
+              styles.bigCircle,
+              {
+                width: radius,
+                height: radius,
+                borderRadius: radius / 2,
+                right: -radius * 0.35,
+                bottom: -radius * 0.25,
+                backgroundColor: C.white,
+              },
+            ]}
         />
 
-        <EventCard
-          color={C.cardBlue}
-          title="Title"
-          time="12:00pm to 1:20pm - 1.4 hours"
-          location="Bucharest"
-          person="Mihaela"
-        />
-
-        <EventCard
-          color={C.cardGrey}
-          title=""
-          time=""
-          location=""
-          person=""
-          empty
-        />
-      </ScrollView>
-
-      {/* ======= CERCUL colț dreapta-jos + TIMY ======= */}
-      <View
-        pointerEvents="none"
-        style={[
-          styles.bigCircle,
-          {
-            width: radius,
-            height: radius,
-            borderRadius: radius / 2,
-            right: -radius * 0.35,
-            bottom: -radius * 0.25,
-            backgroundColor: C.white,
-          },
-        ]}
-      />
-      <Image
-        source={Timy}
-        style={{
-          position: "absolute",
-          right: 18,
-          bottom: 18,
-          width: 110,
-          height: 110,
-          resizeMode: "contain",
-        }}
-      />
-    </View>
+        {/* ======= TIMY CLICKABLE → CHAT ======= */}
+        <TouchableOpacity
+            onPress={() => router.push("/chat")}
+            style={{ position: "absolute", right: 18, bottom: 18 }}
+            activeOpacity={0.7}
+        >
+          <Image
+              source={Timy}
+              style={{
+                width: 110,
+                height: 110,
+                resizeMode: "contain",
+              }}
+          />
+        </TouchableOpacity>
+      </View>
   );
 }
 
 function EventCard({
-  color,
-  title,
-  time,
-  location,
-  person,
-  empty = false,
-}: {
+                     color,
+                     title,
+                     time,
+                     location,
+                     person,
+                     empty = false,
+                   }: {
   color: string;
   title: string;
   time: string;
@@ -175,55 +175,53 @@ function EventCard({
   empty?: boolean;
 }) {
   return (
-    <View style={[styles.card, { backgroundColor: color }]}>
-      {!empty ? (
-        <>
-          <Text style={styles.cardTitle}>{title}</Text>
+      <View style={[styles.card, { backgroundColor: color }]}>
+        {!empty ? (
+            <>
+              <Text style={styles.cardTitle}>{title}</Text>
 
-          <Row icon="time">
-            <Text style={styles.cardLine}>{time}</Text>
-          </Row>
+              <Row>
+                <Text style={styles.cardLine}>{time}</Text>
+              </Row>
 
-          <Row icon="pin">
-            <Text style={styles.cardLine}>{location}</Text>
-          </Row>
+              <Row>
+                <Text style={styles.cardLine}>{location}</Text>
+              </Row>
 
-          <Row icon="user">
-            <Text style={styles.cardLine}>{person}</Text>
-          </Row>
+              <Row>
+                <Text style={styles.cardLine}>{person}</Text>
+              </Row>
 
-          {/* avatars fake (le poți înlocui) */}
-          <View style={{ flexDirection: "row", marginTop: 18 }}>
-            <View style={[styles.avatar, { backgroundColor: "#DADADA" }]} />
-            <View
-              style={[
-                styles.avatar,
-                { backgroundColor: "#B3B3B3", marginLeft: -10 },
-              ]}
-            />
-            <View
-              style={[
-                styles.avatar,
-                { backgroundColor: "#7A7A7A", marginLeft: -10 },
-              ]}
-            />
-          </View>
-        </>
-      ) : (
-        <View style={{ height: 100 }} />
-      )}
-    </View>
+              <View style={{ flexDirection: "row", marginTop: 18 }}>
+                <View style={[styles.avatar, { backgroundColor: "#DADADA" }]} />
+                <View
+                    style={[
+                      styles.avatar,
+                      { backgroundColor: "#B3B3B3", marginLeft: -10 },
+                    ]}
+                />
+                <View
+                    style={[
+                      styles.avatar,
+                      { backgroundColor: "#7A7A7A", marginLeft: -10 },
+                    ]}
+                />
+              </View>
+            </>
+        ) : (
+            <View style={{ height: 100 }} />
+        )}
+      </View>
   );
 }
 
-function Row({ children }: { icon?: string; children: React.ReactNode }) {
-  // las loc pentru iconițe — tu le pui în locul placeholder-ului
+function Row({ children }: { children: React.ReactNode }) {
   return (
-    <View style={styles.row}>
-      <View style={styles.bullet} />
-      <View style={{ width: 8 }} />
-      <View style={{ flex: 1 }}>{children}</View>
-    </View>
+      <View style={styles.row}>
+        <View style={styles.bullet} />
+        <View style={{ width: 8 }} />
+        <View style={{ flex: 1 }}>{children}</View>
+      </View>
   );
 }
 
@@ -315,7 +313,7 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     backgroundColor: C.white,
-    opacity: 0.9, // înlocuiește cu iconița ta
+    opacity: 0.9,
   },
   cardLine: {
     fontSize: 15,
@@ -334,12 +332,10 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
 
-iconImageWhite: {
-  width: 22,
-  height: 22,
-  resizeMode: "contain",
-  tintColor: "#FFFFFF", // face imaginea albă
-},
-
-  
+  iconImageWhite: {
+    width: 22,
+    height: 22,
+    resizeMode: "contain",
+    tintColor: "#FFFFFF",
+  },
 });
