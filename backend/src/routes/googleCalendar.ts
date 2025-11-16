@@ -1,6 +1,6 @@
 import express from "express";
-import {AuthedRequest, authMiddleware} from "../middleware/auth";
-import db from "../db/knex";
+import {AuthedRequest, authMiddleware} from "../middleware/auth.js";
+import db from "../db/knex.js";
 import { google } from "googleapis";
 import { DateTime } from "luxon";
 

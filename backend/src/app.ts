@@ -1,10 +1,10 @@
 import express from "express";
 import cors from "cors";
-import healthRoute from "./routes/healthCheck";
-import googleAuthRoute from "./routes/googleAuthRoute";
-import mapsRoutes from "./routes/mapsRoutes";
-import agentRoute from "./routes/agentInteraction";
-import calendarRoute from "./routes/googleCalendar";
+import healthRoute from "./routes/healthCheck.js";
+import googleAuthRoute from "./routes/googleAuthRoute.js";
+import mapsRoutes from "./routes/mapsRoutes.js";
+import agentRoute from "./routes/agentInteraction.js";
+import calendarRoute from "./routes/googleCalendar.js";
 
 export const PORT = process.env.PORT || 4000;
 

@@ -2,7 +2,7 @@ import { tool, ToolRuntime } from "langchain";
 import * as z from "zod";
 import { google, calendar_v3 } from "googleapis";
 import { DateTime } from "luxon";
-import { contextSchema } from "../agent";
+import { contextSchema } from "../agent.js";
 
 
 

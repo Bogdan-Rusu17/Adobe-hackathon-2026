@@ -1,7 +1,7 @@
 import express from "express";
-import { agent } from "../agent";
+import { agent } from "../agent.js";
 import jwt from "jsonwebtoken";
-import db from "../db/knex";
+import db from "../db/knex.js";
 
 const router = express.Router();
 const conversationHistory = new Map<string, any[]>();

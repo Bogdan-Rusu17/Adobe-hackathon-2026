@@ -1,9 +1,9 @@
 import { createAgent } from "langchain";
-import { createEvent } from "./tools/create_event";
-import { getEvents } from "./tools/get_calendar";
-import { deleteEvent } from "./tools/delete_event";
+import { createEvent } from "./tools/create_event.js";
+import { getEvents } from "./tools/get_calendar.js";
+import { deleteEvent } from "./tools/delete_event.js";
 import z from "zod";
-import { getUTCTime } from "./tools/get_current_time";
+import { getUTCTime } from "./tools/get_current_time.js";
 
 const SYSTEM_PROMPT = `
 You are a helpful assistant that manages calendar events for users.

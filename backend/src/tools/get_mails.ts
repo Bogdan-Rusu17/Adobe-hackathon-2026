@@ -1,6 +1,6 @@
 import { google } from "googleapis";
 import { tool, ToolRuntime } from "langchain";
-import { contextSchema } from "../agent";
+import { contextSchema } from "../agent.js";
 import * as z from "zod";
 
 

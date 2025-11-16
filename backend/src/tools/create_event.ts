@@ -1,7 +1,7 @@
 import { tool, type ToolRuntime } from "langchain";
 import * as z from "zod";
 import { google } from "googleapis";
-import { contextSchema } from "../agent";
+import { contextSchema } from "../agent.js";
 
 const TOOL_DESCRIPTION = `
 Create a calendar event
