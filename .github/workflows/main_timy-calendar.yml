@@ -68,6 +68,9 @@ jobs:
           slot-name: 'Production'
           package: .
 
+      - name: Set DATABASE_URL for migrations
+        run: echo "DATABASE_URL=${{ secrets.DB_URL }}" >> $GITHUB_ENV
+
       - name: Run Knex migrations on Azure
         run: |
             npm install --omit=dev
