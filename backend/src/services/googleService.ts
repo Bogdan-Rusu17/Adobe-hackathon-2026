@@ -1,5 +1,5 @@
 import { google } from "googleapis";
-import db from "../db/knex";
+import db from "../db/knex.js";
 import jwt from "jsonwebtoken";
 
 export const oauth2Client = new google.auth.OAuth2(

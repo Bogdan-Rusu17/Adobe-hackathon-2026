@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getGoogleAuthURL, handleGoogleCallback } from "../services/googleService";
+import { getGoogleAuthURL, handleGoogleCallback } from "../services/googleService.js";
 
 const router = Router();
 

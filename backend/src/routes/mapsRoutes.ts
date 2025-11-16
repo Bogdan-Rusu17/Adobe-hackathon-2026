@@ -1,6 +1,6 @@
 import { Router } from "express";
 import axios from "axios";
-import {AuthedRequest, authMiddleware} from "../middleware/auth";
+import {AuthedRequest, authMiddleware} from "../middleware/auth.js";
 
 const router = Router();
 
