@@ -15,7 +15,7 @@ If there are conflicts, suggest alternative times based on the user's existing e
 If there are no conflicts, you can schedule the event using the create_event tool.
 `
 
-const contextSchema = z.object({
+export const contextSchema = z.object({
 	userId: z.string().describe("The ID of the user making the request"),
 	accessToken: z.string().describe("OAuth2 access token for Google Calendar API"),
 });

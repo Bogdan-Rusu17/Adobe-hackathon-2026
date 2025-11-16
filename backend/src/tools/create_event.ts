@@ -1,6 +1,7 @@
-import { tool } from "langchain";
+import { tool, type ToolRuntime } from "langchain";
 import * as z from "zod";
 import { google } from "googleapis";
+import { contextSchema } from "../agent";
 
 const TOOL_DESCRIPTION = `
 Create a calendar event
@@ -19,10 +20,10 @@ export const createEvent = tool(
 			endTime: string,
 			attendees: string[],
 		},
-		{ context }
+		runtime: ToolRuntime<any, typeof contextSchema>
 	) => {
 		const auth = new google.auth.OAuth2();
-		auth.setCredentials({ access_token: context.accessToken });
+		auth.setCredentials({ access_token: runtime.context.accessToken });
 
 		const calendar = google.calendar({ version: 'v3', auth });
 
