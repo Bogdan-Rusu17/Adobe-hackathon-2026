@@ -28,7 +28,7 @@
     },
     "scheme": "myapp",
     "extra": {
-      "backendUrl": "http://192.168.100.26:4000"
+      "backendUrl": "http://localhost:4000"
     }
   }
 }

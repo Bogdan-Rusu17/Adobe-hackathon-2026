@@ -9,7 +9,7 @@ export default function Home() {
     const [location, setLocation] = useState("");
 
     useEffect(() => {
-        fetch("http://192.168.100.26:4000/health")
+        fetch("http://localhost:4000/health")
             .then((res) => res.json())
             .then((data) => setMessage(JSON.stringify(data)))
             .catch((err) => setMessage("Error: " + err.message));
@@ -35,11 +35,11 @@ export default function Home() {
             <Text style={styles.title}>Backend response:</Text>
             <Text style={styles.response}>{message}</Text>
 
-            <Button title="Connect Google Calendar" onPress={() => connectGoogle()} />
+            <Button title="Connect Google Calendar" onPress={connectGoogle} />
 
             <View style={{ height: 20 }} />
 
-            <Button title="Find my location" onPress={() => handleFindLocation} />
+            <Button title="Find my location" onPress={handleFindLocation} />
 
             <Text style={{ marginTop: 20 }}>{location}</Text>
         </View>

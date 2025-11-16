@@ -5,6 +5,7 @@ import {AuthedRequest, authMiddleware} from "../middleware/auth";
 const router = Router();
 
 router.post("/location", authMiddleware, async (req: AuthedRequest, res) => {
+    console.log('maps route')
     const { latitude, longitude } = req.body;
 
     if (!latitude || !longitude) {

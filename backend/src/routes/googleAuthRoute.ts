@@ -6,9 +6,6 @@ const router = Router();
 router.get("/google", (req, res) => {
     const redirectUri = req.query.redirect_uri as string;
     const authUrl = getGoogleAuthURL(redirectUri);
-    console.log(redirectUri);
-
-    console.log(authUrl);
 
     res.redirect(authUrl);
 });
@@ -18,7 +15,6 @@ router.get("/google/callback", async (req, res) => {
 
     // The `state` contains your expo deep link.
     const redirectUri = req.query.state as string;
-    console.log(redirectUri);
 
     const jwt = await handleGoogleCallback(code);
 

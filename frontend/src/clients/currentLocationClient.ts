@@ -16,7 +16,7 @@ export async function getNamedLocation(jwtToken: string | null) {
     const coords = await getCurrentLocation();
     if (!coords) return;
 
-    const response = await fetch("http://192.168.100.26/maps/location", {
+    const response = await fetch("http://localhost:4000/maps/location", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
