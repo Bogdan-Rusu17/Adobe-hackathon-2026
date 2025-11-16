@@ -1,11 +1,12 @@
 import express from "express";
 import cors from "cors";
-import { PORT } from "./config/envConfig";
 import healthRoute from "./routes/healthCheck";
 import googleAuthRoute from "./routes/googleAuthRoute";
 import mapsRoutes from "./routes/mapsRoutes";
 import agentRoute from "./routes/agentInteraction";
 import calendarRoute from "./routes/googleCalendar";
+
+export const PORT = process.env.PORT || 4000;
 
 const app = express();
 
