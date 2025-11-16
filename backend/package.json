@@ -9,6 +9,7 @@
     "db:up": "docker compose up -d"
   },
   "dependencies": {
+    "axios": "^1.13.2",
     "pg": "^8.16.3",
     "googleapis": "^166.0.0",
     "jsonwebtoken": "^9.0.2",
