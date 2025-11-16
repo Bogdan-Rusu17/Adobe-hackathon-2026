@@ -38,15 +38,12 @@ router.post("/chat", async (req, res) => {
       conversationHistory.set(userId, userHistory);
     }
     userHistory.push({ role: "user", content: prompt });
-    console.log("userid to string", userId, userId.toString());
-    console.log(userHistory);
     const response = await agent.invoke(
       { messages: userHistory },
       { context: { userId: userId.toString(), accessToken: tokenData.access_token, userLatitude: latitude, userLongitude: longitude } }
     );
 
     userHistory.push(...response.messages);
-    console.log(userHistory);
     const responseMessages = response.messages;
     const last = responseMessages[responseMessages.length - 1];
 
@@ -64,7 +61,6 @@ router.post("/chat", async (req, res) => {
           .join(" ");
     }
 
-    console.log(finalText);
     res.json({ response: finalText });
   } catch (error) {
     console.log(error);
