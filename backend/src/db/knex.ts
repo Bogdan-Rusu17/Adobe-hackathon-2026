@@ -1,4 +1,8 @@
 import knex from "knex";
-import config from "../../knexfile";
 
-export default knex(config.development);
+const db = knex({
+    client: "pg",
+    connection: process.env.DATABASE_URL,
+});
+
+export default db;

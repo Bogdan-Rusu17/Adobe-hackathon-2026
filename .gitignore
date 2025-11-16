@@ -58,7 +58,6 @@ packager-info.json
 # De uploaded images
 *.jpg
 *.jpeg
-*.png
 *.psd
 *.tiff
 
@@ -118,8 +117,6 @@ Thumbs.db
 frontend/assets/*.ttf
 frontend/assets/*.otf
 frontend/assets/*.wav
-frontend/assets/*.mp3
-
 # ------------------------------------
 # Logs
 # ------------------------------------
