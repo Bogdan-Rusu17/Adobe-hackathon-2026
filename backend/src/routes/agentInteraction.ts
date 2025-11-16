@@ -38,7 +38,8 @@ router.post("/chat", async (req, res) => {
       conversationHistory.set(userId, userHistory);
     }
     userHistory.push({ role: "user", content: prompt });
-
+    console.log("userid to string", userId, userId.toString());
+    console.log(userHistory);
     const response = await agent.invoke(
       { messages: userHistory },
       { context: { userId: userId.toString(), accessToken: tokenData, userLatitude: latitude, userLongitude: longitude } }
@@ -66,6 +67,7 @@ router.post("/chat", async (req, res) => {
     console.log(finalText);
     res.json({ response: finalText });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
