@@ -66,13 +66,11 @@ jobs:
         with:
           app-name: 'timy-calendar'
           slot-name: 'Production'
-          package: ./backend
+          package: .
 
       - name: Set DATABASE_URL for migrations
         run: echo "DATABASE_URL=${{ secrets.DB_URL }}" >> $GITHUB_ENV
 
       - name: Run Knex migrations on Azure
         run: |
-            cd backend
-            npm install --omit=dev
-            npm run migrate
+            npx knex migrate:latest --knexfile knexfile.js
