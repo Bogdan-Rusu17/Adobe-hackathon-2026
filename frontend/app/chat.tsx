@@ -35,7 +35,7 @@ export default function ChatScreen() {
             {/* ===== AVATAR ===== */}
             <View style={styles.avatarWrap}>
                 <Image
-                    source={require("../src/assets/TimyChat.png")}
+                    source={require("../src/assets/chat.png")}
                     style={styles.avatar}
                 />
             </View>
