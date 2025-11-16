@@ -8,6 +8,6 @@
     "strict": false
   },
   "exclude": [
-    "knexfile.js"
+    "knexfile.ts"
   ]
 }
