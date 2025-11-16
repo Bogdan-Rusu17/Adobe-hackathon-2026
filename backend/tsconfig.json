@@ -7,5 +7,7 @@
     "esModuleInterop": true,
     "strict": false
   },
-  "exclude": ["knexfile.ts"]
+  "exclude": [
+    "knexfile.js"
+  ]
 }

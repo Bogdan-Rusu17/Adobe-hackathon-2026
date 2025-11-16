@@ -6,8 +6,8 @@
     "start": "node dist/app.js",
     "build": "tsc",
     "backend-dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "migrate": "knex --knexfile knexfile.ts migrate:latest",
-    "rollback": "knex --knexfile knexfile.ts migrate:rollback",
+    "migrate": "knex --knexfile knexfile.js migrate:latest",
+    "rollback": "knex --knexfile knexfile.js migrate:rollback",
     "db:up": "docker compose up -d"
   },
   "dependencies": {
