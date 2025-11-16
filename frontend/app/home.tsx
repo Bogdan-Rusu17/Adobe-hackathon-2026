@@ -150,7 +150,7 @@ function CalendarExpandable({
         };
         checkAuth();
     }, []);
-    
+
   return (
       <Animated.View style={[cal.pillWrap,{height}]}>
         <TouchableOpacity style={cal.pillInner} onPress={toggle} activeOpacity={0.9}>
