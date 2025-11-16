@@ -1,112 +1,155 @@
-import { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Dimensions, Image } from "react-native";
+import { useState, useEffect, useMemo } from "react";
+import { View, Text, StyleSheet, Dimensions, Image, StatusBar } from "react-native";
 import { useRouter } from 'expo-router';
 import Timy from "../src/assets/Timy.png";
 import GoogleButton from "../components/GoogleButton";
 
 export default function Index() {
-    const router = useRouter();
-    const [dimensions, setDimensions] = useState(Dimensions.get("window"));
+  const router = useRouter();
+  const [dimensions, setDimensions] = useState(Dimensions.get("window"));
+  const { width: W, height: H } = dimensions;
 
-    useEffect(() => {
-        const subscription = Dimensions.addEventListener("change", ({ window }) => {
-            setDimensions(window);
-        });
+  useEffect(() => {
+    const sub = Dimensions.addEventListener("change", ({ window }) => setDimensions(window));
+    StatusBar.setBarStyle("dark-content");
+    return () => sub?.remove();
+  }, []);
 
-        return () => subscription?.remove();
-    }, []);
+  const scale = (size: number, maxSize: number) => Math.min(W * size, maxSize);
+  const clampedScale = (size: number, min: number, max: number) => {
+    const scaled = W * size;
+    return Math.max(min, Math.min(scaled, max));
+  };
 
-    const { width: W, height: H } = dimensions;
+  // ====== ARC BACKGROUND (cercul uriaș – layer de fundal) ======
+  const circleSize = useMemo(() => Math.max(W, H) * 1.9, [W, H]);
+  const circleBottom = useMemo(() => -circleSize * 0.68, [circleSize]);
 
-    const scale = (size: number, maxSize: number) => Math.min(W * size, maxSize);
+  // Poziția păsării independent de arc/texte (nu modificăm)
+  const birdBottom = clampedScale(0.20, 80, 160);
 
-    const clampedScale = (size: number, min: number, max: number) => {
-        const scaled = W * size;
-        return Math.max(min, Math.min(scaled, max));
-    };
+  const handleLoginSuccess = () => router.replace('/home');
 
-    const handleLoginSuccess = () => {
-        router.replace('/home');
-    };
+  return (
+    <View style={styles.container}>
+      {/* === Fundalul cu cercul, absolut și în spate === */}
+      <View
+        pointerEvents="none"
+        style={[
+          styles.arcBg,
+          {
+            width: circleSize,
+            height: circleSize,
+            borderRadius: circleSize / 2,
+            bottom: circleBottom,
+            left: (W - circleSize) / 2,
+          },
+        ]}
+      />
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.topSection}>
-                <Image
-                    source={Timy}
-                    style={{
-                        width: clampedScale(0.43, 150, 250),
-                        height: clampedScale(0.32, 200, 300),
-                        resizeMode: "contain",
-                        marginBottom: clampedScale(-0.10, -120, -60),
-                        zIndex: 10,
-                    }}
-                />
-            </View>
+      {/* Spacer sus */}
+      <View style={styles.topSection} />
 
-            <View style={[
-                styles.bottomSection,
-                { borderTopLeftRadius: scale(1000, 600) }
-            ]}>
-                <View style={[
-                    styles.contentContainer,
-                    { maxWidth: scale(1, 600) }
-                ]}>
-                    <Text
-                        style={{
-                            fontSize: clampedScale(0.097, 32, 52),
-                            lineHeight: clampedScale(0.115, 38, 62),
-                            fontWeight: "700",
-                            color: "#FFFFFF",
-                            textAlign: "center",
-                            fontFamily: "HankenGrotesk-Bold",
-                        }}
-                    >
-                        Timy here!{"\n"}
-                        Your schedule buddy.
-                    </Text>
+      {/* === Grup: TEXT + BUTON (poziționate împreună) === */}
+      <View style={styles.bottomWrap}>
+        <View
+          style={[
+            styles.textButtonGroup,
+            {
+              maxWidth: scale(1, 320),
+              bottom: clampedScale(0.35, 150, 300), // ↑ mărești ca să urci grupul; micșorezi ca să cobori
+            },
+          ]}
+        >
+          <Text
+            style={{
+              fontSize: clampedScale(0.097, 32, 52),
+              lineHeight: clampedScale(0.115, 38, 62),
+              fontWeight: "700",
+              color: "#FFFFFF",
+              textAlign: "center",
+              fontFamily: "HankenGrotesk-Bold",
+            }}
+          >
+            Timy here!{"\n"}
+            Your schedule buddy.
+          </Text>
 
-                    <View style={{
-                        marginTop: clampedScale(0.1, 40, 80),
-                        width: "100%",
-                        maxWidth: 400
-                    }}>
-                        <GoogleButton onSuccess={handleLoginSuccess} />
-                    </View>
-                </View>
-            </View>
+          <View
+            style={{
+              marginTop: clampedScale(0.1, 40, 80), // spațiu între text și buton
+              width: "100%",
+              maxWidth: 320,
+            }}
+          >
+            <GoogleButton onSuccess={handleLoginSuccess} />
+          </View>
         </View>
-    );
+      </View>
+
+      {/* === Pasărea/Timy – overlay absolut, deasupra tuturor (nemodificat) === */}
+      <View pointerEvents="none" style={styles.birdOverlay}>
+        <Image
+          source={Timy}
+          style={{
+            width: clampedScale(0.52, 200, 330),
+            height: clampedScale(0.40, 230, 360),
+            resizeMode: "contain",
+            bottom: birdBottom,
+            position: "absolute",
+            marginBottom: 354,
+            transform: [{ scale: 1.2 }],
+          }}
+        />
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#FFF8EA",
-    },
+  container: {
+    flex: 1,
+    backgroundColor: "#FFF8EA",
+  },
 
-    topSection: {
-        flex: 1,
-        backgroundColor: "#FFF8EA",
-        justifyContent: "flex-end",
-        alignItems: "center",
-        paddingBottom: 0,
-        zIndex: 10,
-    },
+  arcBg: {
+    position: "absolute",
+    backgroundColor: "#7AA6D9",
+    zIndex: 0,
+  },
 
-    bottomSection: {
-        flex: 1.5,
-        backgroundColor: "#7AA6D9",
-        borderTopRightRadius: 1000,
-        alignItems: "center",
-        justifyContent: "center",
-        paddingBottom: "15%",
-        paddingHorizontal: "10%",
-        zIndex: 1,
-    },
+  topSection: {
+    flex: 0.8,
+    backgroundColor: "#FFF8EA",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    position: "relative",
+    zIndex: 2,
+  },
 
-    contentContainer: {
-        width: "100%",
-        alignItems: "center",
-    },
+  bottomWrap: {
+    flex: 1.5,
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: "10%",
+    zIndex: 2,
+  },
+
+  // Grup text + buton (poziționat împreună, ușor de mutat)
+  textButtonGroup: {
+    position: "absolute",
+    alignItems: "center",
+    width: "100%",
+  },
+
+  birdOverlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    zIndex: 3,
+    top: 0,
+    bottom: 0,
+  },
 });
