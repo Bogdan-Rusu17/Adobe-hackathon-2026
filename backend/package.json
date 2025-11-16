@@ -4,7 +4,7 @@
   "main": "dist/app.js",
   "type": "module",
   "scripts": {
-    "start": "node dist/app.js",
+    "start": "tsx src/app.ts",
     "build": "tsc",
     "backend-dev": "tsx watch src/app.ts",
     "migrate": "knex migrate:latest",
