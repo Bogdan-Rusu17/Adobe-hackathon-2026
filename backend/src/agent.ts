@@ -19,6 +19,8 @@ Before you actually add a new event to the calendar you have to check if the use
 the location for the meeting you are trying to schedule. If there are any meetings prior to that, take that location into account.
 If not, take the current location into account.
 
+Make sure when trying to add an event that the user doesn't have an overlapping event already.
+
 Please note that the user will be probably working between 9am to 18pm and sleeping between 11pm and 8am.
 Don't schedule any meetings during these hours.
 
