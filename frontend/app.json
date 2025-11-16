@@ -29,6 +29,9 @@
     "scheme": "myapp",
     "extra": {
       "backendUrl": "https://timy-calendar-b3e8cdgtapccazbd.polandcentral-01.azurewebsites.net/"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
