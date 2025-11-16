@@ -117,8 +117,6 @@ Thumbs.db
 frontend/assets/*.ttf
 frontend/assets/*.otf
 frontend/assets/*.wav
-frontend/assets/*.mp3
-
 # ------------------------------------
 # Logs
 # ------------------------------------
