@@ -5,23 +5,22 @@ import {
     Text,
     StyleSheet,
     Platform,
-    GestureResponderEvent,
     ViewStyle,
     Image,
 } from 'react-native';
 
 type Props = {
-    onPress?: (event: GestureResponderEvent) => void;
+    onSuccess?: () => void;
     label?: string;
     style?: ViewStyle;
 };
 
-const GoogleButton: React.FC<Props> = ({ onPress, label = 'Sign in with Google', style }) => {
+const GoogleButton: React.FC<Props> = ({ onSuccess, label = 'Sign in with Google', style }) => {
     return (
         <TouchableOpacity
             style={[styles.button, style]}
             activeOpacity={0.85}
-            onPress={onPress}
+            onPress={onSuccess}
         >
             <Image
                 source={{

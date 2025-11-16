@@ -1,53 +1,112 @@
-import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
-import { connectGoogle } from "../src/clients/googleAuthClient";
-import { getNamedLocation } from "../src/clients/currentLocationClient";
-import { getJWT } from "../src/storage/authStorage";
+import { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Dimensions, Image } from "react-native";
+import { useRouter } from 'expo-router';
+import Timy from "../src/assets/Timy.png";
+import GoogleButton from "../components/GoogleButton";
 
-export default function Home() {
-    const [message, setMessage] = useState("Loading...");
-    const [location, setLocation] = useState("");
+export default function Index() {
+    const router = useRouter();
+    const [dimensions, setDimensions] = useState(Dimensions.get("window"));
 
     useEffect(() => {
-        fetch("http://localhost:4000/health")
-            .then((res) => res.json())
-            .then((data) => setMessage(JSON.stringify(data)))
-            .catch((err) => setMessage("Error: " + err.message));
+        const subscription = Dimensions.addEventListener("change", ({ window }) => {
+            setDimensions(window);
+        });
+
+        return () => subscription?.remove();
     }, []);
 
-    async function handleFindLocation() {
-        try {
-            const token = await getJWT();
-            if (!token) {
-                setLocation("You are not logged in!");
-                return;
-            }
+    const { width: W, height: H } = dimensions;
 
-            const namedLocation = await getNamedLocation(token);
-            setLocation(JSON.stringify(namedLocation));
-        } catch (err: any) {
-            setLocation("Error: " + err.message);
-        }
-    }
+    const scale = (size: number, maxSize: number) => Math.min(W * size, maxSize);
+
+    const clampedScale = (size: number, min: number, max: number) => {
+        const scaled = W * size;
+        return Math.max(min, Math.min(scaled, max));
+    };
+
+    const handleLoginSuccess = () => {
+        router.replace('/home');
+    };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Backend response:</Text>
-            <Text style={styles.response}>{message}</Text>
+            <View style={styles.topSection}>
+                <Image
+                    source={Timy}
+                    style={{
+                        width: clampedScale(0.43, 150, 250),
+                        height: clampedScale(0.32, 200, 300),
+                        resizeMode: "contain",
+                        marginBottom: clampedScale(-0.10, -120, -60),
+                        zIndex: 10,
+                    }}
+                />
+            </View>
 
-            <Button title="Connect Google Calendar" onPress={connectGoogle} />
+            <View style={[
+                styles.bottomSection,
+                { borderTopLeftRadius: scale(1000, 600) }
+            ]}>
+                <View style={[
+                    styles.contentContainer,
+                    { maxWidth: scale(1, 600) }
+                ]}>
+                    <Text
+                        style={{
+                            fontSize: clampedScale(0.097, 32, 52),
+                            lineHeight: clampedScale(0.115, 38, 62),
+                            fontWeight: "700",
+                            color: "#FFFFFF",
+                            textAlign: "center",
+                            fontFamily: "HankenGrotesk-Bold",
+                        }}
+                    >
+                        Timy here!{"\n"}
+                        Your schedule buddy.
+                    </Text>
 
-            <View style={{ height: 20 }} />
-
-            <Button title="Find my location" onPress={handleFindLocation} />
-
-            <Text style={{ marginTop: 20 }}>{location}</Text>
+                    <View style={{
+                        marginTop: clampedScale(0.1, 40, 80),
+                        width: "100%",
+                        maxWidth: 400
+                    }}>
+                        <GoogleButton onSuccess={handleLoginSuccess} />
+                    </View>
+                </View>
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, alignItems: "center", justifyContent: "center" },
-    title: { fontSize: 20, marginBottom: 20 },
-    response: { fontSize: 16, color: "green" },
+    container: {
+        flex: 1,
+        backgroundColor: "#FFF8EA",
+    },
+
+    topSection: {
+        flex: 1,
+        backgroundColor: "#FFF8EA",
+        justifyContent: "flex-end",
+        alignItems: "center",
+        paddingBottom: 0,
+        zIndex: 10,
+    },
+
+    bottomSection: {
+        flex: 1.5,
+        backgroundColor: "#7AA6D9",
+        borderTopRightRadius: 1000,
+        alignItems: "center",
+        justifyContent: "center",
+        paddingBottom: "15%",
+        paddingHorizontal: "10%",
+        zIndex: 1,
+    },
+
+    contentContainer: {
+        width: "100%",
+        alignItems: "center",
+    },
 });
