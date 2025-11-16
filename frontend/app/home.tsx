@@ -265,6 +265,7 @@ export default function Home(){
   const [selectedDate,setSelectedDate]=useState(()=>{const t=new Date(); t.setHours(0,0,0,0); return t;});
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
 
   // Funcție pentru a încărca evenimentele din backend
   const loadEvents = async (date: Date) => {
@@ -364,7 +365,7 @@ export default function Home(){
               </View>
           ) : events.length > 0 ? (
               events.map((event) => (
-                  <EventCard key={event.id} event={event} />
+                  <EventCard key={event.id} event={event} onPress={() => setSelectedEvent(event)} />
               ))
           ) : (
               <View style={{ marginTop: 20, alignItems: "center", paddingHorizontal: 16 }}>
@@ -385,12 +386,18 @@ export default function Home(){
     <Text style={styles.badgeText}>💬</Text>
   </View>
 </TouchableOpacity>
+        {selectedEvent && (
+            <EventDetailsSheet
+                event={selectedEvent}
+                onClose={() => setSelectedEvent(null)}
+            />
+        )}
       </View>
   );
 }
 
 /** ============ EventCard ============ */
-function EventCard({ event }: { event: CalendarEvent }) {
+function EventCard({ event, onPress }: { event: CalendarEvent; onPress: () => void }) {
   // Calculează durata evenimentului
   const getDuration = () => {
     const start = new Date(event.startTime);
@@ -419,7 +426,7 @@ function EventCard({ event }: { event: CalendarEvent }) {
   return (
       <TouchableOpacity
           style={[styles.card, { backgroundColor: event.color || C.cardGrey }]}
-          onPress={() => console.log("Event pressed:", event.id)}
+          onPress={onPress}
           activeOpacity={0.8}
       >
         <Text style={styles.cardTitle}>{event.title}</Text>
