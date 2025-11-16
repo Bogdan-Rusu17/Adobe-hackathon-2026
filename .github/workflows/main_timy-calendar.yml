@@ -1,4 +1,4 @@
-name: Build and deploy Node.js backend to Azure Web App - timy-calendar
+name: Deploy Backend to Azure
 
 on:
   push:
@@ -9,8 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Checkout repository
@@ -19,25 +17,27 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22.x'
+          node-version: "22.x"
 
       # Install backend dependencies
       - name: Install backend dependencies
+        working-directory: backend
         run: npm install
-        working-directory: backend
 
-      # Build backend
+      # Build backend (TypeScript → JS)
       - name: Build backend
-        run: npm run build --if-present
         working-directory: backend
+        run: npm run build
 
-      # Upload only backend folder
+      # Upload ONLY the dist folder + package.json + package-lock.json
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend-app
-          path: backend
-          retention-days: 1
+          name: backend-build
+          path: |
+            backend/dist
+            backend/package.json
+            backend/package-lock.json
 
   deploy:
     runs-on: ubuntu-latest
@@ -50,19 +50,18 @@ jobs:
       - name: Download backend artifact
         uses: actions/download-artifact@v4
         with:
-          name: backend-app
+          name: backend-build
 
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_B34B7580EF85460B9CD7972A182D7C4C }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_06ECF267D66749A0ACAF64BEEAF8CCC9 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FD9EA6A01BA64E2F835B951342EEFE21 }}
+            client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_B34B7580EF85460B9CD7972A182D7C4C }}
+            tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_06ECF267D66749A0ACAF64BEEAF8CCC9 }}
+            subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FD9EA6A01BA64E2F835B951342EEFE21 }}
 
-
-      - name: Deploy backend to Azure Web App
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'timy-calendar'
-          slot-name: 'Production'
+          app-name: "timy-calendar"
+          slot-name: "Production"
           package: .
