@@ -33,6 +33,6 @@ export const getMails = tool(async (_, runtime: ToolRuntime<any, typeof contextS
 {
 	name: "get_mails",
 	description: TOOL_DESCRIPTION,
-	schema: z.undefined(),
+	schema: z.object({}),
 }
 );

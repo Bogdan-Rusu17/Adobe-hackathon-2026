@@ -1,3 +1,5 @@
+import * as Location from "expo-location";
+import { sendChatMessage } from "../src/clients/chatClient";
 import React, { useState, useRef, useEffect } from "react";
 import {
   View,
@@ -14,10 +16,6 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Audio } from "expo-av"; // 🔊 doar Android use-case
-
-import * as Location from "expo-location";
-import { sendChatMessage } from "../src/clients/chatClient";
-
 
 import TimyChat from "../src/assets/chat.png";
 import Arrow from "../src/assets/arrow.png";
@@ -95,177 +93,146 @@ export default function ChatScreen() {
     }
   };
 
-  const [isLoading, setIsLoading] = useState(false);
-
   const handleSend = async () => {
-    if (!message.trim() || isLoading) return;
+    if (!message.trim()) return;
 
-    const userText = message;
-    setMessage("");
-
-    // Add user message to chat
     const userMsg: ChatMsg = {
       id: Date.now().toString(),
       type: "user",
-      text: userText,
+      text: message,
     };
 
-    setMessages((prev) => [...prev, userMsg]);
+    const { status } =
+        await Location.requestForegroundPermissionsAsync();
 
-    // Disable input until response arrives
-    setIsLoading(true);
-
-    // Add thinking bubble
-    const thinkingId = "thinking-" + Date.now();
-    setMessages((prev) => [...prev, { id: thinkingId, type: "ai", text: "..." }]);
-
-    try {
-      // ===== 1. Ask permission for GPS =====
-      const { status } =
-          await Location.requestForegroundPermissionsAsync();
-
-      if (status !== "granted") {
-        throw new Error("Location permission denied");
-      }
-
-      // ===== 2. Get current user coordinates =====
-      const location = await Location.getCurrentPositionAsync({});
-      const latitude = location.coords.latitude;
-      const longitude = location.coords.longitude;
-
-      // ===== 3. Load user JWT token =====
-      const token = "YOUR_JWT_TOKEN_HERE"; // <- replace with real storage
-
-      // ===== 4. Call backend using fetch =====
-      const result = await sendChatMessage({
-        token,
-        message: userText,
-        latitude,
-        longitude,
-      });
-
-      // Remove thinking bubble
-      setMessages((prev) => prev.filter((m) => m.id !== thinkingId));
-
-      // Append AI response messages
-      for (const msg of result.response || []) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: Date.now().toString() + Math.random(),
-            type: "ai",
-            text: msg.content || "",
-          },
-        ]);
-      }
-    } catch (err) {
-      console.log("Chat Error:", err);
-
-      setMessages((prev) => [
-        ...prev.filter((m) => !m.id.startsWith("thinking-")),
-        {
-          id: Date.now().toString(),
-          type: "ai",
-          text: "Sorry, something went wrong.",
-        },
-      ]);
+    if (status !== "granted") {
+      throw new Error("Location permission denied");
     }
 
-    setIsLoading(false);
+    // ===== 2. Get current user coordinates =====
+    const location = await Location.getCurrentPositionAsync({});
+    const latitude = location.coords.latitude;
+    const longitude = location.coords.longitude;
 
+    const prompt = message;
+    setMessages((prev) => [...prev, userMsg]);
+    setMessage("");
+
+    const result = await sendChatMessage({
+      message: prompt,
+      latitude,
+      longitude,
+    });
+
+    // Scroll la capăt după ce s-a adăugat mesajul user
     setTimeout(() => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, 80);
+    }, 50);
+
+    // Simulare răspuns AI (doar aici redăm sunetul)
+    setTimeout(() => {
+      const aiMsg: ChatMsg = {
+        id: (Date.now() + 1).toString(),
+        type: "ai",
+        text: result.response,
+      };
+      setMessages((prev) => [...prev, aiMsg]);
+
+      // 🔊 play doar la mesaj AI
+      playAiSend();
+
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 50);
+    }, 800);
   };
 
-
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" />
 
-      {/* ===== HEADER ===== */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.iconCircle}
-          onPress={() =>
-            router.canGoBack() ? router.back() : router.push("/")
-          }
-        >
-          <Image source={Arrow} style={styles.iconImage} />
-        </TouchableOpacity>
-
-        <Text style={styles.headerTitle}>Chat with Timy</Text>
-
-        <TouchableOpacity style={styles.iconCircle2}>
-          <Image source={Dots} style={styles.iconImage} />
-        </TouchableOpacity>
-      </View>
-
-      <KeyboardAvoidingView
-        style={styles.keyboardView}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={-20}
-      >
-        {/* ===== CHAT CONTENT ===== */}
-        <ScrollView
-          ref={scrollViewRef}
-          contentContainerStyle={styles.chatContent}
-          showsVerticalScrollIndicator={false}
-          keyboardDismissMode="interactive"
-          keyboardShouldPersistTaps="handled"
-          onContentSizeChange={() =>
-            scrollViewRef.current?.scrollToEnd({ animated: true })
-          }
-          onLayout={() =>
-            scrollViewRef.current?.scrollToEnd({ animated: false })
-          }
-        >
-          {/* AVATAR */}
-          <View style={styles.avatarWrap}>
-            <Image source={TimyChat} style={styles.avatar} />
-          </View>
-
-          {messages.map((msg) =>
-            msg.type === "ai" ? (
-              <View key={msg.id} style={styles.aiBubbleWrap}>
-                <View style={styles.aiBubble}>
-                  <Text style={styles.aiText}>{msg.text}</Text>
-                </View>
-              </View>
-            ) : (
-              <View key={msg.id} style={styles.userBubbleWrap}>
-                <View style={styles.userBubble}>
-                  <Text style={styles.userText}>{msg.text}</Text>
-                </View>
-              </View>
-            )
-          )}
-        </ScrollView>
-
-        {/* ===== INPUT BAR ===== */}
-        <View style={styles.inputBar}>
-          <TextInput
-            value={message}
-            onChangeText={setMessage}
-            placeholder="Ask me anything..."
-            placeholderTextColor={C.muted}
-            style={styles.input}
-            onSubmitEditing={handleSend}
-            returnKeyType="send"
-            multiline
-          />
-
+        {/* ===== HEADER ===== */}
+        <View style={styles.header}>
           <TouchableOpacity
-              style={[styles.sendButton, isLoading && { opacity: 0.5 }]}
-              onPress={handleSend}
-              disabled={isLoading}
-              activeOpacity={0.8}
+              style={styles.iconCircle}
+              onPress={() =>
+                  router.canGoBack() ? router.back() : router.push("/")
+              }
           >
-            <Image source={Send} style={styles.iconImage} />
+            <Image source={Arrow} style={styles.iconImage} />
+          </TouchableOpacity>
+
+          <Text style={styles.headerTitle}>Chat with Timy</Text>
+
+          <TouchableOpacity style={styles.iconCircle2}>
+            <Image source={Dots} style={styles.iconImage} />
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
-    </View>
+
+        <KeyboardAvoidingView
+            style={styles.keyboardView}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            keyboardVerticalOffset={-20}
+        >
+          {/* ===== CHAT CONTENT ===== */}
+          <ScrollView
+              ref={scrollViewRef}
+              contentContainerStyle={styles.chatContent}
+              showsVerticalScrollIndicator={false}
+              keyboardDismissMode="interactive"
+              keyboardShouldPersistTaps="handled"
+              onContentSizeChange={() =>
+                  scrollViewRef.current?.scrollToEnd({ animated: true })
+              }
+              onLayout={() =>
+                  scrollViewRef.current?.scrollToEnd({ animated: false })
+              }
+          >
+            {/* AVATAR */}
+            <View style={styles.avatarWrap}>
+              <Image source={TimyChat} style={styles.avatar} />
+            </View>
+
+            {messages.map((msg) =>
+                msg.type === "ai" ? (
+                    <View key={msg.id} style={styles.aiBubbleWrap}>
+                      <View style={styles.aiBubble}>
+                        <Text style={styles.aiText}>{msg.text}</Text>
+                      </View>
+                    </View>
+                ) : (
+                    <View key={msg.id} style={styles.userBubbleWrap}>
+                      <View style={styles.userBubble}>
+                        <Text style={styles.userText}>{msg.text}</Text>
+                      </View>
+                    </View>
+                )
+            )}
+          </ScrollView>
+
+          {/* ===== INPUT BAR ===== */}
+          <View style={styles.inputBar}>
+            <TextInput
+                value={message}
+                onChangeText={setMessage}
+                placeholder="Ask me anything..."
+                placeholderTextColor={C.muted}
+                style={styles.input}
+                onSubmitEditing={handleSend}
+                returnKeyType="send"
+                multiline
+            />
+
+            <TouchableOpacity
+                style={styles.sendButton}
+                onPress={handleSend}
+                activeOpacity={0.8}
+            >
+              <Image source={Send} style={styles.iconImage} />
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </View>
   );
 }
 

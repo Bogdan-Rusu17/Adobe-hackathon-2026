@@ -1,19 +1,20 @@
+import {getJWT} from "../storage/authStorage";
+
 export async function sendChatMessage({
-                                          token,
                                           message,
                                           latitude,
                                           longitude,
                                       }: {
-    token: string;
     message: string;
     latitude: number;
     longitude: number;
 }) {
+    const jwtToken = await getJWT();
     const res = await fetch("https://timy-calendar-b3e8cdgtapccazbd.polandcentral-01.azurewebsites.net/agent/chat", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${jwtToken}`,
         },
         body: JSON.stringify({
             message,
