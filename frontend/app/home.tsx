@@ -5,13 +5,14 @@ import {
   TouchableOpacity, StatusBar, PanResponder,
 } from "react-native";
 import Timy from "../src/assets/timyChat.png";
-import Timy from "../src/assets/timyChat.png";
 import MenuIcon from "../src/assets/burger.png";
 import BellIcon from "../src/assets/bell.png";
 import UserIcon from "../src/assets/profile.png";
 import { Animated, Easing } from "react-native";
 import { useRouter } from "expo-router";
 import {getJWT} from "../src/storage/authStorage";
+
+const router = useRouter();
 
 const C = {
   bg: "#FFF8EA",
@@ -391,7 +392,6 @@ export default function Home(){
         </ScrollView>
 
         {/* Chat Button - Fixed & Centered */}
-        {/* Chat Button - Fixed & Centered */}
         <TouchableOpacity
           onPress={handleTimyPress}
           activeOpacity={0.85}
@@ -402,6 +402,12 @@ export default function Home(){
             <Text style={styles.badgeText}>💬</Text>
           </View>
         </TouchableOpacity>
+                {selectedEvent && (
+            <EventDetailsSheet
+                event={selectedEvent}
+                onClose={() => setSelectedEvent(null)}
+            />
+        )}
       </View>
   );
 }
@@ -521,7 +527,7 @@ function EventDetailsSheet({
   onClose: () => void;
 }) {
   const H = Dimensions.get("window").height;
-  const targetTop = H * 0.15;
+  const targetTop = H * 0.22;
 
   const sheetY = useRef(new Animated.Value(H)).current;
   const scrollViewRef = useRef<ScrollView>(null);
@@ -608,8 +614,6 @@ function EventDetailsSheet({
               bounces={true}
           >
             {/* HEADER WITH COLOR BAR */}
-            <View style={[sheetStyles.colorBar, { backgroundColor: event.color || C.cardGrey }]} />
-
             <Text style={sheetStyles.title}>{event.title}</Text>
 
             {/* TIME CARD */}
@@ -714,18 +718,6 @@ function EventDetailsSheet({
               </View>
             </View>
 
-            {/* ACTION BUTTONS */}
-            <View style={sheetStyles.actionRow}>
-              <TouchableOpacity style={sheetStyles.actionButton} activeOpacity={0.7}>
-                <Text style={sheetStyles.actionButtonText}>Edit Event</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                  style={[sheetStyles.actionButton, sheetStyles.actionButtonSecondary]}
-                  activeOpacity={0.7}
-              >
-                <Text style={sheetStyles.actionButtonTextSecondary}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
           </ScrollView>
         </Animated.View>
       </>
@@ -797,10 +789,10 @@ const sheetStyles = StyleSheet.create({
 
   infoCard: {
     flexDirection: "row",
-    backgroundColor: "#F8FAFC",
+    backgroundColor: "#e1e6ecff",
     borderRadius: 16,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: "#E2E8F0",
   },
