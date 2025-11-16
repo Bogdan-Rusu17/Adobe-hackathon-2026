@@ -1,5 +1,5 @@
 // Home.tsx
-import React, { useMemo, useState } from "react";
+import React, {useEffect, useMemo, useState } from "react";
 import {
   View, Text, StyleSheet, Dimensions, Image, ScrollView,
   TouchableOpacity, StatusBar
@@ -10,6 +10,8 @@ import BellIcon from "../src/assets/bell.png";
 import UserIcon from "../src/assets/profile.png";
 import { Animated, Easing } from "react-native";
 import { useRouter } from "expo-router";
+import {getJWT} from "../src/storage/authStorage";
+const router = useRouter();
 
 const C = {
   bg: "#FFF8EA",
@@ -139,6 +141,16 @@ function CalendarExpandable({
         d1.getDate() === d2.getDate();
   };
 
+    useEffect(() => {
+        const checkAuth = async () => {
+        const token = await getJWT();
+        if (token === null) {
+            router.replace('/');
+        }
+        };
+        checkAuth();
+    }, []);
+    
   return (
       <Animated.View style={[cal.pillWrap,{height}]}>
         <TouchableOpacity style={cal.pillInner} onPress={toggle} activeOpacity={0.9}>
@@ -248,7 +260,6 @@ function CalendarExpandable({
 
 /** ===================== Home page ===================== */
 export default function Home(){
-  const router = useRouter();
   const { width: W, height: H } = Dimensions.get("window");
 
   const [selectedDate,setSelectedDate]=useState(()=>{const t=new Date(); t.setHours(0,0,0,0); return t;});
