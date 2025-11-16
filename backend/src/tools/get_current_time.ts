@@ -12,6 +12,6 @@ export const getUTCTime = tool(
 	{
 		name: "get_utc_time",
 		description: TOOL_DESCRIPTION,
-		schema: z.undefined(),
+		schema: z.object({}),
 	}
 )

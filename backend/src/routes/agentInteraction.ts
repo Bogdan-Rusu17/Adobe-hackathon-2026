@@ -4,10 +4,11 @@ import jwt from "jsonwebtoken";
 import db from "../db/knex.js";
 
 const router = express.Router();
-const conversationHistory = new Map<string, any[]>();
+const conversationHistory = new Map<number, any[]>();
 
 router.post("/chat", async (req, res) => {
   try {
+
     const authHeader = req.headers.authorization;
     if (!authHeader) {
       return res.status(401).json({ error: "No token provided" });
@@ -29,18 +30,41 @@ router.post("/chat", async (req, res) => {
     if (!tokenData) {
       return res.status(404).json({ error: "No Google account found" });
     }
-
-		const userHistory = conversationHistory.get(userId) || [];
-		userHistory.push({ role: "user", content: prompt });
+	let userHistory;
+    if (conversationHistory.get(userId)) {
+      userHistory = conversationHistory.get(userId);
+    } else {
+      userHistory = [];
+      conversationHistory.set(userId, userHistory);
+    }
+    userHistory.push({ role: "user", content: prompt });
 
     const response = await agent.invoke(
       { messages: userHistory },
-      { context: { userId, accessToken: tokenData.access_token, userLatitude: latitude, userLongitude: longitude } }
+      { context: { userId: userId.toString(), accessToken: tokenData, userLatitude: latitude, userLongitude: longitude } }
     );
 
-		userHistory.push(...response.messages);
+    userHistory.push(...response.messages);
+    console.log(userHistory);
+    const responseMessages = response.messages;
+    const last = responseMessages[responseMessages.length - 1];
 
-    res.json({ response: response.messages });
+    let finalText = "";
+
+// 🟦 Dacă e un răspuns normal AI
+    if (typeof last.content === "string") {
+      finalText = last.content;
+    }
+
+// 🟩 Dacă Gemini trimite content ca array (uneori o face)
+    else if (Array.isArray(last.content)) {
+      finalText = last.content
+          .map((chunk: any) => chunk.text || "")
+          .join(" ");
+    }
+
+    console.log(finalText);
+    res.json({ response: finalText });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }

@@ -1,3 +1,4 @@
+import './loadEnv.js';
 import express from "express";
 import cors from "cors";
 import healthRoute from "./routes/healthCheck.js";

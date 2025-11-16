@@ -10,7 +10,7 @@ export const oauth2Client = new google.auth.OAuth2(
 
 export function getGoogleAuthURL(redirectUri: string) {
     const scopes = [
-        "https://www.googleapis.com/auth/calendar.readonly",
+        "https://www.googleapis.com/auth/calendar",
         "openid",
         "email",
         "profile",
