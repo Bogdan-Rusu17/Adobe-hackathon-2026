@@ -8,19 +8,23 @@ import {
     ViewStyle,
     Image,
 } from 'react-native';
+import {connectGoogle} from "../src/clients/googleAuthClient";
+import {getJWT} from "../src/storage/authStorage";
 
 type Props = {
-    onSuccess?: () => void;
     label?: string;
     style?: ViewStyle;
 };
 
-const GoogleButton: React.FC<Props> = ({ onSuccess, label = 'Sign in with Google', style }) => {
+const GoogleButton: React.FC<Props> = ({ label = 'Sign in with Google', style }) => {
+    const handleGoogleButton = async () => {
+        await connectGoogle();
+    };
     return (
         <TouchableOpacity
             style={[styles.button, style]}
             activeOpacity={0.85}
-            onPress={onSuccess}
+            onPress={handleGoogleButton}
         >
             <Image
                 source={{

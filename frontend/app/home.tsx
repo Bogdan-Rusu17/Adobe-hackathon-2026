@@ -1,15 +1,16 @@
 // Home.tsx
-import React, { useMemo, useState } from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {
   View, Text, StyleSheet, Dimensions, Image, ScrollView,
   TouchableOpacity, StatusBar
 } from "react-native";
-import Timy from "../src/assets/timyChat.png";
+import Timy from "../src/assets/Timy.png";
 import MenuIcon from "../src/assets/burger.png";
 import BellIcon from "../src/assets/bell.png";
 import UserIcon from "../src/assets/profile.png";
 import { Animated, Easing } from "react-native";
 import { useRouter } from "expo-router";
+import {getJWT} from "../src/storage/authStorage";
 const router = useRouter();
 
 const C = {
@@ -139,6 +140,17 @@ function CalendarExpandable({
         d1.getMonth() === d2.getMonth() &&
         d1.getDate() === d2.getDate();
   };
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await getJWT();
+      if (token === null) {
+        router.replace('/');
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   return (
       <Animated.View style={[cal.pillWrap,{height}]}>

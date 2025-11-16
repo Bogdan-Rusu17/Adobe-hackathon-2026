@@ -15,7 +15,7 @@ export async function getJWT() {
     if (Platform.OS === "web") {
         return localStorage.getItem(TOKEN_KEY);
     } else {
-        return SecureStore.getItemAsync(TOKEN_KEY);
+        return await SecureStore.getItemAsync(TOKEN_KEY);
     }
 }
 
@@ -24,6 +24,6 @@ export async function removeJWT() {
     if (Platform.OS === "web") {
         return localStorage.removeItem(TOKEN_KEY);
     } else {
-        return SecureStore.deleteItemAsync(TOKEN_KEY);
+        return await SecureStore.deleteItemAsync(TOKEN_KEY);
     }
 }

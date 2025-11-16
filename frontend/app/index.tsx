@@ -3,11 +3,23 @@ import { View, Text, StyleSheet, Dimensions, Image, StatusBar } from "react-nati
 import { useRouter } from 'expo-router';
 import Timy from "../src/assets/Timy.png";
 import GoogleButton from "../components/GoogleButton";
+import {getJWT} from "../src/storage/authStorage";
 
 export default function Index() {
   const router = useRouter();
   const [dimensions, setDimensions] = useState(Dimensions.get("window"));
   const { width: W, height: H } = dimensions;
+
+  useEffect(() => {
+    const checkAuth = async () => {
+        const token = await getJWT();
+        if (token) {
+            router.replace('/home');
+        }
+    };
+
+    checkAuth();
+ }, []);
 
   useEffect(() => {
     const sub = Dimensions.addEventListener("change", ({ window }) => setDimensions(window));
@@ -26,8 +38,6 @@ export default function Index() {
   const circleBottom = useMemo(() => -circleSize * 0.68, [circleSize]);
 
   const birdBottom = clampedScale(0.20, 80, 160);
-
-  const handleLoginSuccess = () => router.replace('/home');
 
   return (
     <View style={styles.container}>
@@ -78,7 +88,7 @@ export default function Index() {
               maxWidth: 320,
             }}
           >
-            <GoogleButton onSuccess={handleLoginSuccess} />
+            <GoogleButton />
           </View>
         </View>
       </View>
