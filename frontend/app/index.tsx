@@ -21,18 +21,16 @@ export default function Index() {
     return Math.max(min, Math.min(scaled, max));
   };
 
-  // ====== ARC BACKGROUND (cercul uriaș – layer de fundal) ======
+
   const circleSize = useMemo(() => Math.max(W, H) * 1.9, [W, H]);
   const circleBottom = useMemo(() => -circleSize * 0.68, [circleSize]);
 
-  // Poziția păsării independent de arc/texte (nu modificăm)
   const birdBottom = clampedScale(0.20, 80, 160);
 
   const handleLoginSuccess = () => router.replace('/home');
 
   return (
     <View style={styles.container}>
-      {/* === Fundalul cu cercul, absolut și în spate === */}
       <View
         pointerEvents="none"
         style={[
@@ -47,17 +45,15 @@ export default function Index() {
         ]}
       />
 
-      {/* Spacer sus */}
       <View style={styles.topSection} />
 
-      {/* === Grup: TEXT + BUTON (poziționate împreună) === */}
       <View style={styles.bottomWrap}>
         <View
           style={[
             styles.textButtonGroup,
             {
               maxWidth: scale(1, 320),
-              bottom: clampedScale(0.35, 150, 300), // ↑ mărești ca să urci grupul; micșorezi ca să cobori
+              bottom: clampedScale(0.35, 150, 300),
             },
           ]}
         >
@@ -87,7 +83,6 @@ export default function Index() {
         </View>
       </View>
 
-      {/* === Pasărea/Timy – overlay absolut, deasupra tuturor (nemodificat) === */}
       <View pointerEvents="none" style={styles.birdOverlay}>
         <Image
           source={Timy}
@@ -136,7 +131,6 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
 
-  // Grup text + buton (poziționat împreună, ușor de mutat)
   textButtonGroup: {
     position: "absolute",
     alignItems: "center",
