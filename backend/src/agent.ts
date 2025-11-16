@@ -4,6 +4,7 @@ import { getEvents } from "./tools/get_calendar.js";
 import { deleteEvent } from "./tools/delete_event.js";
 import z from "zod";
 import { getUTCTime } from "./tools/get_current_time.js";
+import {getDistanceToLocation} from './tools/get_user_distance_to_location.js';
 
 const SYSTEM_PROMPT = `
 You are a helpful assistant that manages calendar events for users.
@@ -18,11 +19,13 @@ If there are no conflicts, you can schedule the event using the create_event too
 export const contextSchema = z.object({
 	userId: z.string().describe("The ID of the user making the request"),
 	accessToken: z.string().describe("OAuth2 access token for Google Calendar API"),
+	userLatitude: z.number().describe("The user's current latitude"),
+	userLongitude: z.number().describe("The user's current longitude"),
 });
 
 export const agent = createAgent({
   model: "google-genai:gemini-2.5-flash",
-  tools: [createEvent, getEvents, deleteEvent, getUTCTime],
+  tools: [createEvent, getEvents, deleteEvent, getUTCTime, getDistanceToLocation],
 	systemPrompt: SYSTEM_PROMPT,
 	contextSchema,
 });

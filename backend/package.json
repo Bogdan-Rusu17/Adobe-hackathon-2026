@@ -7,7 +7,7 @@
     "start": "node dist/app.js",
     "build": "tsc",
     "backend-dev": "tsx watch src/app.ts",
-    "migrate": "knex migrate:latest",
+    "migrate": "knex --knexfile knexfile.ts migrate:latest",
     "rollback": "knex --knexfile knexfile.ts migrate:rollback",
     "db:up": "docker compose up -d"
   },
