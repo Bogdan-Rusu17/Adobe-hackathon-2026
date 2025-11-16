@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "dist/app.js",
   "scripts": {
+    "build": "tsc",
     "backend-dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "migrate": "knex --knexfile knexfile.ts migrate:latest",
     "rollback": "knex --knexfile knexfile.ts migrate:rollback",
