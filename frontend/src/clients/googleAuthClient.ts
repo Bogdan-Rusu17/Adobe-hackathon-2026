@@ -4,7 +4,7 @@ import { saveJWT } from "../storage/authStorage";
 import {Platform} from "react-native";
 
 export async function connectGoogle() {
-    const backend = "http://localhost:4000";
+    const backend = "https://timy-calendar-b3e8cdgtapccazbd.polandcentral-01.azurewebsites.net/";
     const redirectUri = Linking.createURL("auth/callback");
 
     if (Platform.OS === "web") {

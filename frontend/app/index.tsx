@@ -16,6 +16,15 @@ export default function Index() {
         return () => subscription?.remove();
     }, []);
 
+    const [message, setMessage] = useState("Loading...");
+
+    useEffect(() => {
+        fetch("https://timy-calendar-b3e8cdgtapccazbd.polandcentral-01.azurewebsites.net/health")
+            .then((res) => res.json())
+            .then((data) => setMessage(JSON.stringify(data)))
+            .catch((err) => setMessage("Error: " + err.message));
+    }, []);
+
     const { width: W, height: H } = dimensions;
 
     const scale = (size: number, maxSize: number) => Math.min(W * size, maxSize);
@@ -32,6 +41,7 @@ export default function Index() {
     return (
         <View style={styles.container}>
             <View style={styles.topSection}>
+                <Text>{message}</Text>
                 <Image
                     source={Timy}
                     style={{

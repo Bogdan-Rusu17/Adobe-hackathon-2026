@@ -67,3 +67,9 @@ jobs:
           app-name: 'timy-calendar'
           slot-name: 'Production'
           package: .
+
+      - name: Run Knex migrations on Azure
+        run: |
+            cd backend
+            npm install --omit=dev
+            npm run migrate
