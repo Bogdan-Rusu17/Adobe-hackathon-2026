@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import db from "../db/knex";
 
 const router = express.Router();
+const conversationHistory = new Map<string, any[]>();
 
 router.post("/chat", async (req, res) => {
   try {
@@ -27,10 +28,15 @@ router.post("/chat", async (req, res) => {
       return res.status(404).json({ error: "No Google account found" });
     }
 
+		const userHistory = conversationHistory.get(userId) || [];
+		userHistory.push({ role: "user", content: prompt });
+
     const response = await agent.invoke(
-      { messages: [{ role: "user", content: prompt }] },
+      { messages: userHistory },
       { context: { userId, accessToken: tokenData.access_token } }
     );
+
+		userHistory.push(...response.messages);
 
     res.json({ response: response.messages });
   } catch (error) {
