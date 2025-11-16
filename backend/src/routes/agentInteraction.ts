@@ -42,7 +42,7 @@ router.post("/chat", async (req, res) => {
     console.log(userHistory);
     const response = await agent.invoke(
       { messages: userHistory },
-      { context: { userId: userId.toString(), accessToken: tokenData, userLatitude: latitude, userLongitude: longitude } }
+      { context: { userId: userId.toString(), accessToken: tokenData.access_token, userLatitude: latitude, userLongitude: longitude } }
     );
 
     userHistory.push(...response.messages);
