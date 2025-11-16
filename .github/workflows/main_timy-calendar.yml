@@ -9,29 +9,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '22.x'
-
-      - name: Install backend dependencies
-        run: npm install
-        working-directory: backend
-
-      # No build step needed — TSX runs TypeScript directly
+      # Do NOT install dependencies here
+      # Do NOT upload node_modules
 
       - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:
           name: backend
-          path: backend/
+          path: backend
           retention-days: 1
 
   deploy:
