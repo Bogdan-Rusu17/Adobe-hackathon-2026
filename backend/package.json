@@ -2,10 +2,11 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "dist/app.js",
+  "type": "module",
   "scripts": {
     "start": "node dist/app.js",
     "build": "tsc",
-    "backend-dev": "ts-node-dev --respawn --transpile-only src/app.ts",
+    "backend-dev": "tsx watch src/app.ts",
     "migrate": "knex migrate:latest",
     "rollback": "knex --knexfile knexfile.ts migrate:rollback",
     "db:up": "docker compose up -d"
