@@ -2,8 +2,7 @@ name: Deploy Backend to Azure
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -11,57 +10,63 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "22.x"
+          node-version: "18.x"
 
-      # Install backend dependencies
       - name: Install backend dependencies
         working-directory: backend
         run: npm install
 
-      # Build backend (TypeScript → JS)
-      - name: Build backend
+      - name: Build TypeScript
         working-directory: backend
         run: npm run build
 
-      # Upload ONLY the dist folder + package.json + package-lock.json
-      - name: Upload backend artifact
+      # Create deploy bundle
+      - name: Prepare deployment bundle
+        run: |
+          mkdir deploy
+          cp backend/package.json deploy/
+          cp backend/package-lock.json deploy/ || true
+          cp -r backend/dist deploy/
+          cp -r backend/src/db/migrations deploy/migrations || true
+          cp -r backend/src/db/seeds deploy/seeds || true
+
+      - name: Install production dependencies
+        working-directory: deploy
+        run: npm install --production
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend-build
-          path: |
-            backend/dist
-            backend/package.json
-            backend/package-lock.json
+          name: backend-deploy
+          path: deploy
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
-      - name: Download backend artifact
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: backend-build
+          name: backend-deploy
 
-      - name: Login to Azure
+      - name: Azure Login
         uses: azure/login@v2
         with:
-            client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_B34B7580EF85460B9CD7972A182D7C4C }}
-            tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_06ECF267D66749A0ACAF64BEEAF8CCC9 }}
-            subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FD9EA6A01BA64E2F835B951342EEFE21 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_B34B7580EF85460B9CD7972A182D7C4C }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_06ECF267D66749A0ACAF64BEEAF8CCC9 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FD9EA6A01BA64E2F835B951342EEFE21 }}
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: "timy-calendar"
-          slot-name: "Production"
+          app-name: timy-calendar
+          slot-name: Production
           package: .
