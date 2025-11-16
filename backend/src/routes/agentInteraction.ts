@@ -17,6 +17,8 @@ router.post("/chat", async (req, res) => {
     const decoded_token = jwt.verify(token, process.env.JWT_SECRET!);
     const userId = (decoded_token as any).userId;
     const prompt = req.body.message;
+    const latitude = req.body.latitude;
+    const longitude = req.body.longitude;
 
     if (!prompt) {
       return res.status(400).json({ error: "Message is required" });
@@ -33,7 +35,7 @@ router.post("/chat", async (req, res) => {
 
     const response = await agent.invoke(
       { messages: userHistory },
-      { context: { userId, accessToken: tokenData.access_token } }
+      { context: { userId, accessToken: tokenData.access_token, userLatitude: latitude, userLongitude: longitude } }
     );
 
 		userHistory.push(...response.messages);

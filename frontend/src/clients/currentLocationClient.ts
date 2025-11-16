@@ -16,7 +16,7 @@ export async function getNamedLocation(jwtToken: string | null) {
     const coords = await getCurrentLocation();
     if (!coords) return;
 
-    const response = await fetch("https://timy-calendar-b3e8cdgtapccazbd.polandcentral-01.azurewebsites.net//maps/location", {
+    const response = await fetch("https://timy-calendar-b3e8cdgtapccazbd.polandcentral-01.azurewebsites.net/maps/location", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

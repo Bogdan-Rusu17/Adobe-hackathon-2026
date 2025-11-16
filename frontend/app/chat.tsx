@@ -15,6 +15,10 @@ import {
 import { useRouter } from "expo-router";
 import { Audio } from "expo-av"; // 🔊 doar Android use-case
 
+import * as Location from "expo-location";
+import { sendChatMessage } from "../src/clients/chatClient";
+
+
 import TimyChat from "../src/assets/chat.png";
 import Arrow from "../src/assets/arrow.png";
 import Dots from "../src/assets/dots.png";
@@ -91,40 +95,89 @@ export default function ChatScreen() {
     }
   };
 
-  const handleSend = () => {
-    if (!message.trim()) return;
+  const [isLoading, setIsLoading] = useState(false);
 
+  const handleSend = async () => {
+    if (!message.trim() || isLoading) return;
+
+    const userText = message;
+    setMessage("");
+
+    // Add user message to chat
     const userMsg: ChatMsg = {
       id: Date.now().toString(),
       type: "user",
-      text: message,
+      text: userText,
     };
 
     setMessages((prev) => [...prev, userMsg]);
-    setMessage("");
 
-    // Scroll la capăt după ce s-a adăugat mesajul user
+    // Disable input until response arrives
+    setIsLoading(true);
+
+    // Add thinking bubble
+    const thinkingId = "thinking-" + Date.now();
+    setMessages((prev) => [...prev, { id: thinkingId, type: "ai", text: "..." }]);
+
+    try {
+      // ===== 1. Ask permission for GPS =====
+      const { status } =
+          await Location.requestForegroundPermissionsAsync();
+
+      if (status !== "granted") {
+        throw new Error("Location permission denied");
+      }
+
+      // ===== 2. Get current user coordinates =====
+      const location = await Location.getCurrentPositionAsync({});
+      const latitude = location.coords.latitude;
+      const longitude = location.coords.longitude;
+
+      // ===== 3. Load user JWT token =====
+      const token = "YOUR_JWT_TOKEN_HERE"; // <- replace with real storage
+
+      // ===== 4. Call backend using fetch =====
+      const result = await sendChatMessage({
+        token,
+        message: userText,
+        latitude,
+        longitude,
+      });
+
+      // Remove thinking bubble
+      setMessages((prev) => prev.filter((m) => m.id !== thinkingId));
+
+      // Append AI response messages
+      for (const msg of result.response || []) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now().toString() + Math.random(),
+            type: "ai",
+            text: msg.content || "",
+          },
+        ]);
+      }
+    } catch (err) {
+      console.log("Chat Error:", err);
+
+      setMessages((prev) => [
+        ...prev.filter((m) => !m.id.startsWith("thinking-")),
+        {
+          id: Date.now().toString(),
+          type: "ai",
+          text: "Sorry, something went wrong.",
+        },
+      ]);
+    }
+
+    setIsLoading(false);
+
     setTimeout(() => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, 50);
-
-    // Simulare răspuns AI (doar aici redăm sunetul)
-    setTimeout(() => {
-      const aiMsg: ChatMsg = {
-        id: (Date.now() + 1).toString(),
-        type: "ai",
-        text: "I'm processing your request...",
-      };
-      setMessages((prev) => [...prev, aiMsg]);
-
-      // 🔊 play doar la mesaj AI
-      playAiSend();
-
-      setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-      }, 50);
-    }, 800);
+    }, 80);
   };
+
 
   return (
     <View style={styles.container}>
@@ -203,9 +256,10 @@ export default function ChatScreen() {
           />
 
           <TouchableOpacity
-            style={styles.sendButton}
-            onPress={handleSend}
-            activeOpacity={0.8}
+              style={[styles.sendButton, isLoading && { opacity: 0.5 }]}
+              onPress={handleSend}
+              disabled={isLoading}
+              activeOpacity={0.8}
           >
             <Image source={Send} style={styles.iconImage} />
           </TouchableOpacity>
