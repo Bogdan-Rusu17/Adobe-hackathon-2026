@@ -11,7 +11,6 @@ import UserIcon from "../src/assets/profile.png";
 import { Animated, Easing } from "react-native";
 import { useRouter } from "expo-router";
 import {getJWT} from "../src/storage/authStorage";
-const router = useRouter();
 
 const C = {
   bg: "#FFF8EA",
@@ -140,16 +139,6 @@ function CalendarExpandable({
         d1.getMonth() === d2.getMonth() &&
         d1.getDate() === d2.getDate();
   };
-
-    useEffect(() => {
-        const checkAuth = async () => {
-        const token = await getJWT();
-        if (token === null) {
-            router.replace('/');
-        }
-        };
-        checkAuth();
-    }, []);
     
   return (
       <Animated.View style={[cal.pillWrap,{height}]}>
@@ -260,6 +249,7 @@ function CalendarExpandable({
 
 /** ===================== Home page ===================== */
 export default function Home(){
+  const router = useRouter();
   const { width: W, height: H } = Dimensions.get("window");
 
   const [selectedDate,setSelectedDate]=useState(()=>{const t=new Date(); t.setHours(0,0,0,0); return t;});
@@ -313,12 +303,26 @@ export default function Home(){
   };
 
   // Încarcă evenimente când se schimbă data selectată
-  React.useEffect(() => {
+  useEffect(() => {
     loadEvents(selectedDate);
   }, [selectedDate]);
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await getJWT();
+      if (token === null) {
+        router.replace('/');
+      }
+    };
+    checkAuth();
+  }, []);
+
   const handleTimyPress = () => {
     router.push("/chat");
+  };
+
+  const handleProfilePress = () => {
+    router.push("/profile");
   };
 
   const subtitleText = useMemo(()=>{
@@ -341,7 +345,7 @@ export default function Home(){
             <TouchableOpacity style={styles.iconCircle}>
               <Image source={BellIcon} style={styles.iconImageWhite} />
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.iconCircle,{marginLeft:12}]}>
+            <TouchableOpacity style={[styles.iconCircle,{marginLeft:12}]} onPress={handleProfilePress}>
               <Image source={UserIcon} style={styles.iconImageWhite} />
             </TouchableOpacity>
           </View>
@@ -376,15 +380,15 @@ export default function Home(){
 
         {/* Chat Button - Fixed & Centered */}
         <TouchableOpacity
-    onPress={handleTimyPress}
-    activeOpacity={0.85}
-    style={styles.chatButton}
->
-  <Image source={Timy} style={styles.timyImage} />
-  <View style={styles.badge}>
-    <Text style={styles.badgeText}>💬</Text>
-  </View>
-</TouchableOpacity>
+          onPress={handleTimyPress}
+          activeOpacity={0.85}
+          style={styles.chatButton}
+        >
+          <Image source={Timy} style={styles.timyImage} />
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>💬</Text>
+          </View>
+        </TouchableOpacity>
       </View>
   );
 }
@@ -542,42 +546,42 @@ const styles = StyleSheet.create({
   },
 
   chatButton: {
-  position: "absolute",
-  right: 20,
-  bottom: 40,
-  width: 80,
-  height: 80,
-  borderRadius: 40,
-  backgroundColor: "#4068A2",
-  alignItems: "center",
-  justifyContent: "center",
-  shadowColor: C.navy,
-  shadowOffset: { width: 0, height: 8 },
-  shadowOpacity: 0.6,
-  shadowRadius: 18,
-  elevation: 12,
-},
-timyImage: {
-  width: 60,
-  height: 60,
-  resizeMode: "contain",
-},
-badge: {
-  position: "absolute",
-  top: -4,
-  right: -4,
-  width: 28,
-  height: 28,
-  borderRadius: 14,
-  backgroundColor: "#4068A2",
-  alignItems: "center",
-  justifyContent: "center",
-  borderWidth: 2,
-  borderColor: C.bg,
-},
-badgeText: {
-  fontSize: 12,
-}
+    position: "absolute",
+    right: 20,
+    bottom: 40,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#4068A2",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: C.navy,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.6,
+    shadowRadius: 18,
+    elevation: 12,
+  },
+  timyImage: {
+    width: 60,
+    height: 60,
+    resizeMode: "contain",
+  },
+  badge: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#4068A2",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: C.bg,
+  },
+  badgeText: {
+    fontSize: 12,
+  }
 });
 
 /* ======= Calendar styles ======= */
