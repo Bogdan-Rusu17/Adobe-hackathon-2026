@@ -2,7 +2,7 @@ import { tool } from "langchain";
 import * as z from "zod";
 import { google, calendar_v3 } from "googleapis";
 import { DateTime } from "luxon";
-import db from "../db/knex";
+
 
 const TOOL_DESCRIPTION = `
 Get calendar events within a specified time range.
@@ -16,13 +16,10 @@ export const getEvents = tool(
 		{
 			startTime: string,
 			endTime: string,
-			userId: string,
-		}
+		}, { context }
 	) => {
-		const accessToken = await db("google_accounts").where({ user_id: input.userId }).first();
-
 		const auth = new google.auth.OAuth2();
-		auth.setCredentials({ access_token: accessToken });
+		auth.setCredentials({ access_token: context.accessToken });
 
 		const calendar = google.calendar({ version: 'v3', auth });
 
@@ -45,7 +42,7 @@ export const getEvents = tool(
 		schema: z.object({
 			startTime: z.string().describe("The start time of the event in ISO 8601 datetime format"),
 			endTime: z.string().describe("The end time of the event in ISO 8601 datetime format"),
-			userId: z.string().describe("The ID of the user whose calendar to access"),
+
 		})
 	}
 );

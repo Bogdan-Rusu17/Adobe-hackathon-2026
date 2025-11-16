@@ -1,7 +1,6 @@
 import { tool } from "langchain";
 import * as z from "zod";
 import { google } from "googleapis";
-import db from "../db/knex";
 
 const TOOL_DESCRIPTION = `
 Delete a calendar event
@@ -14,13 +13,10 @@ export const deleteEvent = tool(
 	async (input: 
 		{
 			eventId: string,
-			userId: string,
-		}
+		}, { context }
 	) => {
-		const accessToken = await db("google_accounts").where({ user_id: input.userId }).first();
-
 		const auth = new google.auth.OAuth2();
-		auth.setCredentials({ access_token: accessToken });
+		auth.setCredentials({ access_token: context.accessToken });
 
 		const calendar = google.calendar({ version: 'v3', auth });
 
@@ -37,7 +33,7 @@ export const deleteEvent = tool(
 		description: TOOL_DESCRIPTION,
 		schema: z.object({
 			eventId: z.string().describe("The ID of the event to delete"),
-			userId: z.string().describe("The ID of the user whose calendar to access"),
+
 		})
 	}
 );
