@@ -64,15 +64,3 @@ jobs:
           app-name: 'timy-calendar'
           slot-name: 'Production'
           package: backend
-
-      - name: Install dependencies for migration
-        run: |
-          cd backend
-          npm install
-
-      - name: Run Knex migrations
-        env:
-          DATABASE_URL: ${{ secrets.DB_URL }}
-        run: |
-          cd backend
-          npx knex migrate:latest --knexfile knexfile.js
