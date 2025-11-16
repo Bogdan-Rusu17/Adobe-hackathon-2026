@@ -58,7 +58,6 @@ packager-info.json
 # De uploaded images
 *.jpg
 *.jpeg
-*.png
 *.psd
 *.tiff
 
