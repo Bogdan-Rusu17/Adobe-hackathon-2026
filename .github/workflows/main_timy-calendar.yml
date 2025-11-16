@@ -73,5 +73,6 @@ jobs:
 
       - name: Run Knex migrations on Azure
         run: |
+            cd backend
             npm install --omit=dev
             npm run migrate
