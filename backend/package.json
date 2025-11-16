@@ -11,6 +11,8 @@
     "db:up": "docker compose up -d"
   },
   "dependencies": {
+    "zod": "^4.1.12",
+    "langchain": "^1.0.4",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "axios": "^1.13.2",
