@@ -1,10 +1,10 @@
 // Home.tsx
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useMemo, useState } from "react";
 import {
   View, Text, StyleSheet, Dimensions, Image, ScrollView,
   TouchableOpacity, StatusBar
 } from "react-native";
-import Timy from "../src/assets/Timy.png";
+import Timy from "../src/assets/timyChat.png";
 import MenuIcon from "../src/assets/burger.png";
 import BellIcon from "../src/assets/bell.png";
 import UserIcon from "../src/assets/profile.png";
@@ -141,17 +141,16 @@ function CalendarExpandable({
         d1.getDate() === d2.getDate();
   };
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = await getJWT();
-      if (token === null) {
-        router.replace('/');
-      }
-    };
-
-    checkAuth();
-  }, []);
-
+    useEffect(() => {
+        const checkAuth = async () => {
+        const token = await getJWT();
+        if (token === null) {
+            router.replace('/');
+        }
+        };
+        checkAuth();
+    }, []);
+    
   return (
       <Animated.View style={[cal.pillWrap,{height}]}>
         <TouchableOpacity style={cal.pillInner} onPress={toggle} activeOpacity={0.9}>
@@ -375,24 +374,17 @@ export default function Home(){
 
         </ScrollView>
 
-        {/* CERC + TIMY - Chat Button */}
+        {/* Chat Button - Fixed & Centered */}
         <TouchableOpacity
-            onPress={handleTimyPress}
-            activeOpacity={0.85}
-            style={styles.chatButton}
-        >
-          <View style={styles.chatButtonInner}>
-            <Image
-                source={Timy}
-                style={styles.timyImage}
-            />
-            <View style={styles.chatBubble}>
-              <View style={styles.chatDot} />
-              <View style={[styles.chatDot, { marginLeft: 4 }]} />
-              <View style={[styles.chatDot, { marginLeft: 4 }]} />
-            </View>
-          </View>
-        </TouchableOpacity>
+    onPress={handleTimyPress}
+    activeOpacity={0.85}
+    style={styles.chatButton}
+>
+  <Image source={Timy} style={styles.timyImage} />
+  <View style={styles.badge}>
+    <Text style={styles.badgeText}>💬</Text>
+  </View>
+</TouchableOpacity>
       </View>
   );
 }
@@ -549,47 +541,43 @@ const styles = StyleSheet.create({
     justifyContent:"center"
   },
 
-  bigCircle: { position: "absolute" },
-
   chatButton: {
-    position: "absolute",
-    right: 20,
-    bottom: 40,
-    width: 100,
-    height: 100,
-    borderRadius: 55,
-    backgroundColor: "#4068A2",
-    shadowColor: C.navy,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 10,
-  },
-  chatButtonInner: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  timyImage: {
-    width: 65,
-    height: 65,
-    resizeMode: "contain",
-    marginBottom: 4,
-  },
-  chatBubble: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.3)",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
-  },
-  chatDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 2.5,
-    backgroundColor: C.white,
-  },
+  position: "absolute",
+  right: 20,
+  bottom: 40,
+  width: 80,
+  height: 80,
+  borderRadius: 40,
+  backgroundColor: "#4068A2",
+  alignItems: "center",
+  justifyContent: "center",
+  shadowColor: C.navy,
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 0.6,
+  shadowRadius: 18,
+  elevation: 12,
+},
+timyImage: {
+  width: 60,
+  height: 60,
+  resizeMode: "contain",
+},
+badge: {
+  position: "absolute",
+  top: -4,
+  right: -4,
+  width: 28,
+  height: 28,
+  borderRadius: 14,
+  backgroundColor: "#4068A2",
+  alignItems: "center",
+  justifyContent: "center",
+  borderWidth: 2,
+  borderColor: C.bg,
+},
+badgeText: {
+  fontSize: 12,
+}
 });
 
 /* ======= Calendar styles ======= */
